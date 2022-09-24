@@ -248,9 +248,7 @@ def api_projects_labels_change(uname : str, project : int, label : int):
     elif len(lbl := [l for l in proj.labels if l.id == label]) != 1:
         return json_error(f'Unknown label id "{label}"')
     else:
-        # TODO
-        
-        pass
+        pass # TODO
 
 
 @secure_api('/api/projects/<int:project>/labels/<int:label>/delete')
@@ -264,6 +262,14 @@ def api_projects_labels_delete(uname : str, project : int, label : int):
         return json_ok({ })
 
 
+@secure_api('/api/projects/<int:project>/tasks/create')
+def api_projects_tasks(uname : str, project : int):
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    else:
+        return json_ok([t.to_jsonobj() for t in proj.get_tasks()])
+
+
 # GET:
 #   - name
 # Returns the task json
@@ -272,21 +278,32 @@ def api_projects_tasks_create(uname : str, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif (name := request.args.get('name')) is None:
-        return json_error('No name has been provided for the label.')
+        return json_error('No name has been provided for the task.')
     elif any(t for t in proj.get_tasks() if t.name == name):
-        return json_error(f'A label with the name "{name}" does already exist.')
+        return json_error(f'A task with the name "{name}" does already exist.')
     else:
         return json_ok(proj.add_task(name, uname).to_jsonobj())
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/')
 def api_projects_tasks_info(uname : str, project : int, task : int):
-    pass
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    elif (t := proj.get_task(task)) is None:
+        return json_error(f'Invalid task id "{task}" in project "{project}".')
+    else:
+        return json_ok(t.to_jsonobj())
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/delete')
 def api_projects_tasks_delete(uname : str, project : int, task : int):
-    pass
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    elif (t := proj.get_task(task)) is None:
+        return json_error(f'Invalid task id "{task}" in project "{project}".')
+    else:
+        t.delete()
+        return json_ok({ })
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/upload_data')
