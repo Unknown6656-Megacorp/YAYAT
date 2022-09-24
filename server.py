@@ -17,6 +17,10 @@ os.chdir(CURRENT_DIR)
 if not osp.isdir(USER_DIR): os.mkdir(USER_DIR)
 if not osp.isdir(PROJECTS_DIR): os.mkdir(PROJECTS_DIR)
 
+if not osp.isfile(gitignore := osp.join(USER_DIR, '.gitignore')):
+    with open(gitignore, 'w') as f:
+        f.write('*')
+
 
 
 def parse_utc(utc : str) -> datetime:
