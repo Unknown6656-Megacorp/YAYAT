@@ -1,42 +1,24 @@
 from flask import Flask, request, send_from_directory
 import argparse
+import sys
+import os
+import os.path as osp
 
 
-MAIN_FOLDER = '/yayat/'
+CURRENT_DIR = osp.dirname(__file__)
+STATIC_DIR = osp.join(CURRENT_DIR, 'static')
+USER_DIR = osp.join(CURRENT_DIR, 'userdata')
 
+os.chdir(CURRENT_DIR)
 
+if not osp.isdir(USER_DIR):
+    os.mkdir(USER_DIR)
 
 
 app = Flask(__name__)
 
-@app.route('/')
-def route_root():
-    return f'''<!DOCTYPE HTML>
-        <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta http-equiv="refresh" content="0; url={MAIN_FOLDER}">
-                <script type="text/javascript">
-                    window.location.href = "{MAIN_FOLDER}"
-                </script>
-                <title>Page Redirection</title>
-            </head>
-            <body>
-                If you are not redirected automatically, follow <a href='{MAIN_FOLDER}'>this link</a>.
-            </body>
-        </html>
-    '''
-
-@app.route(f'{MAIN_FOLDER}')
-def route_index():
-    return send_from_directory('static', 'index.html')
-
-@app.route(f'{MAIN_FOLDER}<path:path>')
-def route_static(path : str = ''):
-    return send_from_directory('static', path)
-
-
-
+import server_static
+import server_api
 
 
 
@@ -46,4 +28,5 @@ parser.add_argument('--hostname', '-n', type = str, default = '0.0.0.0', help = 
 parser.add_argument('--debug', '-d', type = bool, default = True, help = 'Runs the server in debug mode.')
 args = parser.parse_args()
 
-app.run(args.hostname, int(args.port), bool(args.debug))
+
+app.run(args.hostname, int(args.port), bool(args.debug), use_reloader = False)
