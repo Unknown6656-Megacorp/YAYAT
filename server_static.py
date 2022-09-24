@@ -1,9 +1,10 @@
-from genericpath import isfile
-import os
 import os.path as osp
 
 from flask import Flask, request, send_from_directory
 from __main__ import app, STATIC_DIR
+
+app : Flask
+STATIC_DIR : str
 
 
 # TODO : caching
