@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 import os.path as osp
 import argparse
@@ -31,6 +31,7 @@ def print_utc(utc : datetime) -> str:
 
 def print_utcnow() -> str: return print_utc(datetime.utcnow())
 
+def utc_from_unix(unix : float) -> datetime: return datetime.fromtimestamp(unix, tz = timezone.utc)
 
 
 app = Flask(
