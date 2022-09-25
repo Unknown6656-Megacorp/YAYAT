@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/css/login.css"/>
+{% endblock %}
+{% block content %}
+    <main>
+        <h1>YAYAT - Yet Another YOLO Annotation Tool</h1>
+        <p>
+            Welcome to YAYAT, a light-weight YOLO annotation tool based on python/flask.
+        </p>
+        <p>
+            [TODO]
+        </p>
+        <p>
+            In order to use YAYAT, please login below.
+        </p>
+        <br/>
+        <br/>
+        <form>
+            <login-page>
+                <h1>Login</h1>
+                <input type="text" id="login-username" placeholder="Username"/>
+                <br/>
+                <input type="password" id="login-password" placeholder="Password"/>
+                <br/>
+                <button type="submit" id="login-button">Sign in</button>
+            </login-page>
+        </form>
+        <br/>
+        <br/>
+        <br/>
+        <h3>
+            Forgot your credentials?
+        </h3>
+        <p>
+            You can reset your password as follows:
+            <ol>
+                <li>
+                    Shut down the YAYAT window by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>.
+                </li>
+                <li>
+                    Edit the file <code>{{ userfile }}</code> and provide a new username/password.
+                </li>
+                <li>
+                    Restart the server by running <code>python3 "{{mainfile}}"</code>.
+                </li>
+            </ol>
+        </p>
+    </main>
+{% endblock %}
+{% block scripts %}
+    <script type="text/javascript" language="javascript" src="/js/login.js"></script>
+{% endblock %}
