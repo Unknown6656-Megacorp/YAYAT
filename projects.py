@@ -208,7 +208,7 @@ class Task:
         }
 
     def read_json(self) -> None:
-        with open(self.project_file, 'r') as f:
+        with open(self.task_file, 'r') as f:
             jsonobj = json.load(f)
             self.id = int(jsonobj['id'])
             self.name = jsonobj['name']
@@ -289,7 +289,7 @@ class Project:
 
     def add_task(self, name : str, uname : str) -> Task:
         id = get_next_free_id(self.get_tasks(), lambda t: t.id, 1)
-        task = Task(id, name, uname)
+        task = Task(self, id, name, uname)
         self.tasks.append(id)
         self.update_json()
 
