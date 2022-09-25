@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import enum
 from typing import Any, Callable
 from datetime import datetime
 import hashlib
@@ -9,7 +10,7 @@ import os
 import os.path as osp
 
 from flask import Flask, request, jsonify, Response
-from __main__ import app, print_utcnow, parse_utc, USER_DIR, _DEBUG_
+from __main__ import app, print_utcnow, print_utc, parse_utc, utc_from_unix, USER_DIR, _DEBUG_
 from projects import Label, AnnotationPose, ExplicitAnnotation, TrackingAnnotationKeyframe, TrackingAnnotation, Frame, Task, Project
 
 app : Flask
@@ -31,6 +32,9 @@ USERS = { }
 
 COOKIE_API_TOKEN = '__cookie_api_token'
 COOKIE_USER_NAME = '__cookie_api_uname'
+
+# VALID_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.jpe', '.jp2', '.png', '.bmp', '.tif', '.tiff', '.sr', '.ras', '.pbm', '.pgm', '.ppm', '.dib']
+
 
 
 def sha512(string : str) -> str: return hashlib.sha512(string.encode('utf-8')).hexdigest()
@@ -115,6 +119,7 @@ def get_logged_in_name() -> str | None:
             if entry.token == token and (datetime.utcnow() - entry.date).total_seconds() <= USER_TIMEOUT:
                 return uname
     return None
+
 
 # don't look too hard at this clusterfuck of a signature, just use it as a decorator.
 def secure_api(route : str) -> Callable[[Callable[[str, dict[str, Any]], Response]], Callable[[dict[str, Any]], Response]]:
@@ -316,8 +321,29 @@ def api_projects_tasks_delete(uname : str, project : int, task : int):
         return json_ok({ })
 
 
-@secure_api('/api/projects/<int:project>/tasks/<int:task>/upload_data')
-def api_projects_tasks_upload_data(uname : str, project : int, task : int):
+# GET:
+#   - files: list of file names on the server, separated by '|'
+@secure_api('/api/projects/<int:project>/tasks/<int:task>/upload_local')
+def api_projects_tasks_upload_local(uname : str, project : int, task : int):
+    if (files := request.args.get('files')) is None:
+        return json_error('No directory has been provided.')
+    else:
+        files = files.split('|')
+        pass
+
+# GET:
+#   - urls: list of URLs, separeted by '|'
+@secure_api('/api/projects/<int:project>/tasks/<int:task>/upload_web')
+def api_projects_tasks_upload_web(uname : str, project : int, task : int):
+    if (urls := request.args.get('urls')) is None:
+        return json_error('No directory has been provided.')
+    else:
+        urls = urls.split('|')
+        pass
+
+
+@secure_api('/api/projects/<int:project>/tasks/<int:task>/upload_remote')
+def api_projects_tasks_upload_remote(uname : str, project : int, task : int):
     pass
 
 
@@ -349,3 +375,42 @@ def api_projects_tasks_frames_change_annotations(uname : str, project : int, tas
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>/download')
 def api_projects_tasks_frames_download(uname : str, project : int, task : int, frame : int):
     pass
+
+
+def human_readable_size(num : int | float, scale : int | float = 1024.0, suffix = 'B', si_prefixes : list[str] = list('kMGTPEZY')) -> str:
+    for unit in [''] + si_prefixes:
+        if abs(num) < scale:
+            return f"{num:3.2f} {unit}{suffix}"
+        num /= scale
+    return '(way too fucking large, bro)'
+
+# GET
+#   - dir
+@secure_api('/api/filesystem')
+def api_filesystem(uname : str):
+    if (dir := request.args.get('dir')) is None:
+        return json_error('No directory has been provided.')
+    else:
+        files = ['.', '..'] + os.listdir(dir) if osp.isdir(dir) else []
+        isroot = dir in ['..', '/..', '\\..', '/../', '\\..\\', './..', '.\\..', './../', '.\\..\\']
+        dir = osp.normpath(dir)
+
+        if isroot: # list drives on windows
+            files = [chr(x) + ':\\' for x in range(65, 91) if os.path.exists(chr(x) + ':')]
+
+        for i, file in enumerate(files):
+            path = file if isroot else osp.join(dir, file)
+            stat = os.stat(path)
+            files[i] = {
+                'name': file,
+                'path': path,
+                'type': 'd' if osp.isdir(path) else 'f',
+                'size': human_readable_size(stat.st_size),
+                'created': print_utc(utc_from_unix(stat.st_ctime)),
+                'modified': print_utc(utc_from_unix(stat.st_mtime)),
+            }
+
+        return json_ok(files)
+
+
+
