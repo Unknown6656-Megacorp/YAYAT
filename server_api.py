@@ -127,9 +127,10 @@ def secure_api(route : str) -> Callable[[Callable[[str, dict[str, Any]], Respons
             response.delete_cookie(COOKIE_USER_NAME)
 
             if uname is not None:
-                entry = USER_TOKENS[uname]
-                entry.date = datetime.utcnow()
-                USER_TOKENS[uname] = entry
+                if uname in USER_TOKENS:
+                    entry = USER_TOKENS[uname]
+                    entry.date = datetime.utcnow()
+                    USER_TOKENS[uname] = entry
                 response = callback(uname, **kwargs)
 
             return response
