@@ -1,22 +1,37 @@
 @charset "utf-8";
-@import '../font/bahnschrift.css';
+@import '/css/bahnschrift.css';
+@import '/css/cascadia.css';
 
 :root {
     --font-main: 'Bahnschrift', 'Helvetica', 'Arial', 'Lucida Grande', sans-serif;
-    --font-mono: 'Consolas', 'Courier New', 'Courier', 'Lucida Console', 'Ubuntu Mono', monospace;
-    --font-size: 12pt;
+    --font-mono: ui-monospace, 'Cascadia', 'Consolas', 'Courier New', 'Courier', 'Lucida Console', 'Ubuntu Mono', monospace;
+    --font-size: 14pt;
 
     --color-foreground: #222;
     --color-background: whitesmoke;
 
     font-size: var(--font-size);
-    font-family: var(--font-main);
     background-color: var(--color-background);
     color: var(--color-foreground);
 }
 
+* {
+    font-family: var(--font-main);
+}
+
+ol li,
+ul li,
+menu li {
+    margin: 4px 0px;
+}
+
+button, input, textarea {
+    font-size: var(--font-size);
+}
+
 :root,
 body {
+    overflow: hidden;
     padding: 0px;
     margin: 0px;
 }
