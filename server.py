@@ -33,10 +33,23 @@ def print_utcnow() -> str: return print_utc(datetime.utcnow())
 
 
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder = 'static',
+    template_folder = 'static/templates'
+)
 
-import server_static
 import server_api
+import server_static
+
+if _DEBUG_:
+    @app.after_request
+    def add_header(r):
+        r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        r.headers["Pragma"] = "no-cache"
+        r.headers["Expires"] = "0"
+        r.headers['Cache-Control'] = 'public, max-age=0'
+        return r
 
 
 
@@ -46,5 +59,10 @@ parser.add_argument('--hostname', '-n', type = str, default = '0.0.0.0', help = 
 parser.add_argument('--debug', '-d', type = bool, default = _DEBUG_, help = 'Runs the server in debug mode.')
 args = parser.parse_args()
 
-
-app.run(args.hostname, int(args.port), bool(args.debug), use_reloader = False)
+app.config['TEMPLATES_AUTO_RELOAD'] = _DEBUG_
+app.run(
+    host = args.hostname,
+    port = int(args.port),
+    debug = bool(args.debug),
+    use_reloader = False
+)
