@@ -1,0 +1,10 @@
+@charset "utf-8";
+
+@font-face {
+    font-family: 'Cascadia';
+    src: url('/font/cascadia.woff2') format('woff2'),
+        url('/font/cascadia.woff') format('woff'),
+        url('/font/cascadia.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
