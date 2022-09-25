@@ -102,26 +102,35 @@ def json_error(error : str, code : int = 400) -> Response:
     resp.status = code
     return resp
 
+
+def get_logged_in_name() -> str | None:
+    if _DEBUG_:
+        return USER_ROOT
+    else:
+        uname = request.cookies[COOKIE_USER_NAME] if COOKIE_USER_NAME in request.cookies else ''
+        token = request.cookies[COOKIE_API_TOKEN] if COOKIE_API_TOKEN in request.cookies else ''
+
+        if uname in USER_TOKENS:
+            entry = USER_TOKENS[uname]
+            if entry.token == token and (datetime.utcnow() - entry.date).total_seconds() <= USER_TIMEOUT:
+                return uname
+    return None
+
 # don't look too hard at this clusterfuck of a signature, just use it as a decorator.
 def secure_api(route : str) -> Callable[[Callable[[str, dict[str, Any]], Response]], Callable[[dict[str, Any]], Response]]:
     def _decorated(callback : Callable[[str, dict[str, Any]], Response]) -> Callable[[dict[str, Any]], Response]:
         @app.route(route, endpoint = callback.__name__)
         def _inner(**kwargs):
-            uname = request.cookies[COOKIE_USER_NAME] if COOKIE_USER_NAME in request.cookies else ''
-            token = request.cookies[COOKIE_API_TOKEN] if COOKIE_API_TOKEN in request.cookies else ''
+            uname = get_logged_in_name()
             response : Response = json_error('You are not authorized to perform this action.', 403)
             response.delete_cookie(COOKIE_API_TOKEN)
             response.delete_cookie(COOKIE_USER_NAME)
 
-            if _DEBUG_:
-                response = callback(USER_ROOT, **kwargs)
-            elif uname in USER_TOKENS:
+            if uname is not None:
                 entry = USER_TOKENS[uname]
-
-                if entry.token == token and (datetime.utcnow() - entry.date).total_seconds() <= USER_TIMEOUT:
-                    entry.date = datetime.utcnow()
-                    USER_TOKENS[uname] = entry
-                    response = callback(uname, **kwargs)
+                entry.date = datetime.utcnow()
+                USER_TOKENS[uname] = entry
+                response = callback(uname, **kwargs)
 
             return response
         return _inner
@@ -262,7 +271,7 @@ def api_projects_labels_delete(uname : str, project : int, label : int):
         return json_ok({ })
 
 
-@secure_api('/api/projects/<int:project>/tasks/create')
+@secure_api('/api/projects/<int:project>/tasks/')
 def api_projects_tasks(uname : str, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
