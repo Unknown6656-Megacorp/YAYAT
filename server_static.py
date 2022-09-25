@@ -51,7 +51,7 @@ def route_index():
     if (uname := get_logged_in_name()) is None:
         return redirect('/yayat/login/')
     else:
-        return render_template('index.html')
+        return redirect('/yayat/projects/')
 
 @app.route(f'/yayat/login/')
 def route_login():
@@ -59,4 +59,11 @@ def route_login():
         userfile = osp.normpath(osp.join(USER_DIR, USER_FILE)),
         mainfile = osp.normpath(mainfile)
     )
+
+@app.route(f'/yayat/projects/')
+def route_index():
+    if (uname := get_logged_in_name()) is None:
+        return redirect('/yayat/login/')
+    else:
+        return render_template('projects.html', uname = uname)
 
