@@ -14,7 +14,15 @@
     <body>
         <header>
             <a href="/yayat/" id="main-icon">YAYAT</a>
-            <separator/>
+            <header-separator></header-separator>
+            Projects
+            <header-separator class="small"></header-separator>
+            Tasks
+            <header-separator class="small"></header-separator>
+            [TODO]
+            <header-filler></header-filler>
+            <header-separator></header-separator>
+            [SETTINGS]
         </header>
         <page-container>
             {% block content %}
@@ -25,6 +33,7 @@
         </footer>
     </body>
     <script type="text/javascript" language="javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" language="javascript" src="/js/common.js"></script>
     {% block scripts %}
     {% endblock scripts %}
 </html>
