@@ -19,3 +19,8 @@ login-page button#login-button {
     padding: 5px 10px;
     width: 200px;
 }
+
+login-page span#login-error {
+    color: firebrick;
+    padding: 2px;
+}

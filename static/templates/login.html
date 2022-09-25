@@ -16,12 +16,13 @@
         </p>
         <br/>
         <br/>
-        <form>
+        <form id="login-form">
             <login-page>
                 <h1>Login</h1>
                 <input type="text" id="login-username" placeholder="Username"/>
                 <br/>
                 <input type="password" id="login-password" placeholder="Password"/>
+                <span id="login-error">&nbsp;</span>
                 <br/>
                 <button type="submit" id="login-button">Sign in</button>
             </login-page>
@@ -49,5 +50,6 @@
     </main>
 {% endblock %}
 {% block scripts %}
+    <script type="text/javascript" language="javascript" src="/js/sha512.js"></script>
     <script type="text/javascript" language="javascript" src="/js/login.js"></script>
 {% endblock %}
