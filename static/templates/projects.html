@@ -1,15 +1,17 @@
 {% extends "layout.html" %}
 {% block head %}
+    <link rel="stylesheet" type="text/css" href="/css/projects.css"/>
 {% endblock %}
 {% block content %}
     <main>
         <p>
-            Welcome (back), {{uname}}.
+            Welcome back, {{uname}}. We hope that you are doing well.
         </p>
-        <h2>
+        <br/>
+        <h1>
             Current YAYAT annotation projects
-        </h2>
-        [TODO : list]
+        </h1>
+        <project-list></project-list>
     </main>
 {% endblock %}
 {% block scripts %}

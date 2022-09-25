@@ -61,7 +61,7 @@ def route_login():
     )
 
 @app.route(f'/yayat/projects/')
-def route_index():
+def route_projects():
     if (uname := get_logged_in_name()) is None:
         return redirect('/yayat/login/')
     else:
