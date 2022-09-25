@@ -2,6 +2,7 @@
 @import '/css/bahnschrift.css';
 @import '/css/cascadia.css';
 
+
 :root {
     --font-main: 'Bahnschrift', 'Helvetica', 'Arial', 'Lucida Grande', sans-serif;
     --font-mono: ui-monospace, 'Cascadia', 'Consolas', 'Courier New', 'Courier', 'Lucida Console', 'Ubuntu Mono', monospace;
@@ -9,6 +10,15 @@
 
     --color-foreground: #222;
     --color-background: whitesmoke;
+    --color-toolbars: #e0e0e0;
+    --color-inline-code: #bbb;
+
+    --header-height: 50px;
+    --footer-height: 30px;
+
+    --main-content-width: 500px;
+
+    --border-radius: 6px;
 
     font-size: var(--font-size);
     background-color: var(--color-background);
@@ -29,9 +39,90 @@ button, input, textarea {
     font-size: var(--font-size);
 }
 
+code {
+    background-color: var(--color-inline-code);
+    /* border: 1px solid var(--color-foreground); */
+    border-radius: var(--border-radius);
+    font-family: var(--font-mono);
+    box-sizing: border-box;
+    padding: .2em .4em;
+    font-size: 85%;
+    margin: 0;
+}
+
 :root,
 body {
     overflow: hidden;
     padding: 0px;
     margin: 0px;
+}
+
+body header,
+body footer {
+    background-color: var(--color-toolbars);
+    position: fixed;
+    width: 100%;
+    right: 0px;
+    left: 0px;
+}
+
+body header {
+    border-bottom: 1px solid var(--color-foreground);
+    height: var(--header-height);
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+    z-index: 20000;
+    display: flex;
+    top: 0px;
+}
+
+body header #main-icon {
+    --icon-size: 40px;
+
+    background-image: url('/img/favicon-180.png');
+    background-size: var(--icon-size) var(--icon-size);
+    background-position: 0 50%;
+    background-repeat: no-repeat;
+    padding-left: var(--icon-size);
+    height: var(--icon-size);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-decoration: none;
+    font-weight: 900;
+    font-size: 1.4em;
+    margin: 10px;
+    color: var(--color-foreground) !important;
+}
+
+body footer {
+    border-top: 1px solid var(--color-foreground);
+    height: var(--footer-height);
+    position: fixed;
+    z-index: 10000;
+    display: block;
+    bottom: 0px;
+}
+
+body page-container {
+    flex-direction: column;
+    align-content: center;
+    align-items: center;
+    position: absolute;
+    overflow-y: auto;
+    display: flex;
+    height: calc(100% - calc(var(--header-height) + var(--footer-height)));
+    bottom: var(--footer-height);
+    top: var(--header-height);
+    width: 100%;
+    right: 0px;
+    left: 0px;
+    
+}
+
+body page-container main {
+    min-width: var(--main-content-width);
+    margin: 20px auto;
+    padding: 0px 30px;
 }
