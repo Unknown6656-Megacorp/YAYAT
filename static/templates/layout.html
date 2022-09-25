@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon-180.png"/>
+        <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png"/>
+        <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16.png"/>
+        <link rel="stylesheet" type="text/css" href="/css/common.css"/>
+        <title>YAYAT | {{ title }}</title>
+        {% block head %}
+        {% endblock head %}
+    </head>
+    <body>
+        <header>
+            <a href="/yayat/" id="main-icon">YAYAT</a>
+            <separator/>
+        </header>
+        <page-container>
+            {% block content %}
+            {% endblock content %}
+        </page-container>
+        <footer>
+            [TODO]
+        </footer>
+    </body>
+    <script type="text/javascript" language="javascript" src="/js/jquery.js"></script>
+    {% block scripts %}
+    {% endblock scripts %}
+</html>
