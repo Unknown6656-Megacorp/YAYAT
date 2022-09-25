@@ -1,13 +1,26 @@
 import os.path as osp
+from typing import Callable
 
-from flask import Flask, request, send_from_directory
-from __main__ import app, STATIC_DIR
+from flask import Flask, request, send_from_directory, render_template, redirect
+from __main__ import app, STATIC_DIR, USER_DIR, __file__ as mainfile
+from server_api import get_logged_in_name, USER_FILE
+
 
 app : Flask
 STATIC_DIR : str
+get_logged_in_name : Callable[[], str | None]
 
 
 # TODO : caching
+
+@app.route('/')
+def route_root():
+    return redirect('/yayat/')
+    return route_static('redirect.html')
+
+@app.route(f'/favicon.ico')
+def route_favicon():
+    return route_static('favicon.ico')
 
 @app.route(f'/yayat/<path:path>')
 def route_static(path : str = ''):
@@ -33,18 +46,17 @@ def route_css(path : str = ''):
 def route_font(path : str = ''):
     return route_static('font/' + path)
 
-# @app.route(f'/yayat/login')
-# def route_login():
-#     return route_static('login.html')
-
 @app.route(f'/yayat/')
 def route_index():
-    return route_static('index.html')
+    if (uname := get_logged_in_name()) is None:
+        return redirect('/yayat/login/')
+    else:
+        return render_template('index.html')
 
-@app.route(f'/favicon.ico')
-def route_favicon():
-    return route_static('favicon.ico')
+@app.route(f'/yayat/login/')
+def route_login():
+    return render_template('login.html',
+        userfile = osp.normpath(osp.join(USER_DIR, USER_FILE)),
+        mainfile = osp.normpath(mainfile)
+    )
 
-@app.route('/')
-def route_root():
-    return route_static('redirect.html')
