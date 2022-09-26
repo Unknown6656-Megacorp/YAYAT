@@ -227,6 +227,12 @@ class Task:
         if not osp.isfile(self.task_file):
             self.update_json()
 
+    def update_modified(self, utc : datetime) -> None:
+        if utc > self.modified:
+            self.modified = utc
+            self.update_json()
+            self.project.update_modified(utc)
+
 
 class Project:
     def __init__(self, id : int, name : str = None, uname : str = None):
@@ -236,6 +242,7 @@ class Project:
         self.labels : list[Label] = []
         self.creator = uname
         self.created = datetime.utcnow()
+        self.modified = self.created
         self.directory = osp.join(PROJECTS_DIR, str(id))
         self.project_file = osp.join(self.directory, PROJECT_FILE)
 
@@ -258,6 +265,7 @@ class Project:
             'name': self.name,
             'creator': self.creator,
             'created': print_utc(self.created),
+            'modified': print_utc(self.modified),
             'labels': [l.to_jsonobj() for l in self.labels],
             'tasks': self.tasks,
         }
@@ -271,6 +279,7 @@ class Project:
             self.labels = [Label.from_jsonobj(obj) for obj in jsonobj['labels']]
             self.creator = jsonobj['creator']
             self.created = parse_utc(jsonobj['created'])
+            self.modified = parse_utc(jsonobj['modified'])
 
     def update_json(self) -> None:
         with open(self.project_file, 'w') as f:
@@ -278,6 +287,11 @@ class Project:
 
     def create_json(self) -> None:
         if not osp.isfile(self.project_file):
+            self.update_json()
+
+    def update_modified(self, utc : datetime) -> None:
+        if utc > self.modified:
+            self.modified = utc
             self.update_json()
 
     def add_label(self, name : str, color : str) -> Label:
