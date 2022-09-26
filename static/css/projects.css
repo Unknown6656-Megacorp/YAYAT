@@ -1,7 +1,23 @@
 @charset "utf-8";
 
+
+h1.projects-heading {
+    align-items: center;
+    display: flex;
+    margin: 5px 0px;
+}
+
+#projects-search {
+    margin-left: auto;
+    width: 200px;
+}
+
+#new-project {
+    margin-left: 10px;
+}
+
 project-list {
-    padding: 0px 10px 0px 0px;
+    /* padding: 0px 10px 0px 0px; */
     flex-direction: column;
     overflow-y: scroll;
     display: flex;
@@ -13,7 +29,7 @@ project-list project-card {
     border: 1px solid var(--color-foreground);
     background-color: var(--color-element);
     border-radius: var(--border-radius);
-    margin-bottom: 10px;
+    margin: 0px 10px 10px 0px;
     display: flex;
 }
 
@@ -34,17 +50,21 @@ project-card project-preview {
     border-top-left-radius: calc(var(--border-radius) - 1px);
     border-right: 1px solid var(--color-foreground);
     margin: 0px 5px 0px 0px;
-    height: 100%;
+    cursor: pointer;
     display: block;
-    width: 150px;
+    height: 100%;
+    width: 180px;
 }
 
 project-card project-info,
-project-card project-actions,
-project-card project-progress {
+project-card project-actions {
     margin: 5px;
     flex-direction: column;
     display: flex;
+}
+
+project-card project-info {
+    flex: 1;
 }
 
 project-card project-info h2 {
@@ -58,7 +78,16 @@ project-card project-info h2::after {
     opacity: .4;
 }
 
-project-card project-info span.small {
-    font-size: .8em;
+project-card project-info project-progress {
+    margin-top: 10px;
 }
 
+project-card project-actions {
+    padding: 0px 3px;
+    min-width: 100px;
+}
+
+project-card project-actions button {
+    width: 100%;
+    margin: 2px;
+}
