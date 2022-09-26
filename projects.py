@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 from typing import Any, Callable, Iterable, TypeVar
 import os.path as osp
 import os
@@ -172,6 +173,12 @@ class Frame:
         )
 
 
+class TaskProgress(Enum):
+    NOT_YET_STARTED = 0
+    IN_PROGRESS = 1
+    COMPLETED = 2
+
+
 class Task:
     def __init__(self, project : 'Project', id : int, name : str = None, creator : str = None):
         self.id = id
@@ -179,6 +186,7 @@ class Task:
         self.project = project
         self.frames : list[Frame] = []
         self.tracking_annotations : list[TrackingAnnotation] = []
+        self.progress = TaskProgress.NOT_YET_STARTED
         self.creator = creator
         self.created = datetime.utcnow()
         self.modified = self.created
@@ -203,6 +211,7 @@ class Task:
             'creator': self.creator,
             'created': print_utc(self.created),
             'modified': print_utc(self.modified),
+            'progress': self.progress.value,
             'frames': [f.to_jsonobj() for f in self.frames],
             'tracking_annotations': [a.to_jsonobj() for a in self.tracking_annotations],
         }
@@ -216,6 +225,7 @@ class Task:
             self.creator = jsonobj['creator']
             self.created = parse_utc(jsonobj['created'])
             self.modified = parse_utc(jsonobj['modified'])
+            self.progress = TaskProgress(jsonobj['progress'])
             self.frames = [Frame.from_jsonobj(obj) for obj in jsonobj['frames']]
             self.tracking_annotations = [TrackingAnnotation.from_jsonobj(obj) for obj in jsonobj['tracking_annotations']]
 
@@ -232,6 +242,11 @@ class Task:
             self.modified = utc
             self.update_json()
             self.project.update_modified(utc)
+
+    def mark_as_completed(self) -> None:
+        self.progress = TaskProgress.COMPLETED
+        self.update_modified(datetime.utcnow())
+
 
 
 class Project:
