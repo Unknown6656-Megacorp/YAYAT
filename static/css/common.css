@@ -9,14 +9,15 @@
     --font-size: 14pt;
 
     --color-foreground: #222;
-    --color-background: whitesmoke;
-    --color-toolbars: #e0e0e0;
+    --color-background: #eee;
+    --color-element: #fff;
+    --color-toolbars: #ddd;
     --color-inline-code: #bbb;
 
     --header-height: 50px;
     --footer-height: 30px;
 
-    --main-content-width: 500px;
+    --main-content-width: 800px;
 
     --border-radius: 6px;
 
@@ -56,6 +57,7 @@ code {
 
 :root,
 body {
+    min-width: calc(50px + var(--main-content-width));
     overflow: hidden;
     padding: 0px;
     margin: 0px;
@@ -150,6 +152,9 @@ body page-container {
 
 body page-container main {
     min-width: var(--main-content-width);
+    flex-direction: column;
     margin: 20px auto;
     padding: 0px 30px;
+    display: flex;
+    flex: 1;
 }
