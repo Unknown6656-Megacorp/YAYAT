@@ -24,10 +24,10 @@ if not osp.isfile(gitignore := osp.join(USER_DIR, '.gitignore')):
 
 
 def parse_utc(utc : str) -> datetime:
-    return datetime.strptime(utc, "%Y-%m-%dT%H-%M-%S.%fZ")
+    return datetime.strptime(utc, "%Y-%m-%dT%H:%M:%S.%fZ")
 
 def print_utc(utc : datetime) -> str:
-    return utc.strftime('%Y-%m-%dT%H-%M-%S.%f')[:-3] + 'Z'
+    return utc.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
 def print_utcnow() -> str: return print_utc(datetime.utcnow())
 
