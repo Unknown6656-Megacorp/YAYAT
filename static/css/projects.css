@@ -1,5 +1,64 @@
 @charset "utf-8";
 
 project-list {
+    padding: 0px 10px 0px 0px;
+    flex-direction: column;
+    overflow-y: scroll;
+    display: flex;
+    width: 100%;
+    flex: 1;
+}
+
+project-list project-card {
+    border: 1px solid var(--color-foreground);
+    background-color: var(--color-element);
+    border-radius: var(--border-radius);
+    margin-bottom: 10px;
     display: flex;
 }
+
+project-list project-card.error {
+    border: 1px solid firebrick;
+    background-color: mistyrose;
+}
+
+project-card project-preview {
+    background: repeating-linear-gradient(
+        135deg,
+        #999,
+        #999 5px,
+        #bbb 5px,
+        #bbb 10px
+    );
+    border-bottom-left-radius: calc(var(--border-radius) - 1px);
+    border-top-left-radius: calc(var(--border-radius) - 1px);
+    border-right: 1px solid var(--color-foreground);
+    margin: 0px 5px 0px 0px;
+    height: 100%;
+    display: block;
+    width: 150px;
+}
+
+project-card project-info,
+project-card project-actions,
+project-card project-progress {
+    margin: 5px;
+    flex-direction: column;
+    display: flex;
+}
+
+project-card project-info h2 {
+    margin: 0px;
+}
+
+project-card project-info h2::after {
+    content: '#' attr(data-project-id);
+    margin-left: 10px;
+    font-weight: 100;
+    opacity: .4;
+}
+
+project-card project-info span.small {
+    font-size: .8em;
+}
+

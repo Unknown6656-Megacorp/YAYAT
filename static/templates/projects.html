@@ -9,11 +9,17 @@
         </p>
         <br/>
         <h1>
-            Current YAYAT annotation projects
+            Projects
+
+            <input type="text" value="[TODO : search]"/>
+            <button>[TODO : create new project]</button>
         </h1>
         <project-list></project-list>
+        <p>
+            There are currently <span id="project-count"></span> active project(s).
+        </p>
     </main>
 {% endblock %}
 {% block scripts %}
-
+    <script type="text/javascript" language="javascript" src="/js/projects.js"></script>
 {% endblock %}
