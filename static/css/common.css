@@ -10,6 +10,7 @@
 
     --color-foreground: #222;
     --color-background: #eee;
+    --color-accent: #2980B9;
     --color-element: #fff;
     --color-toolbars: #ddd;
     --color-inline-code: #bbb;
@@ -36,8 +37,43 @@ menu li {
     margin: 4px 0px;
 }
 
+a {
+    text-decoration: none;
+    color: unset;
+}
+
 button, input, textarea {
+    border: 1px solid var(--color-accent);
+    border-radius: var(--border-radius);
     font-size: var(--font-size);
+    padding: 3px 6px;
+}
+
+button, input[type="submit"], input[type="button"] {
+    background-color: var(--color-background);
+    color: var(--color-accent);
+    filter: brightness(1);
+
+    transition: filter .3s;
+}
+
+button.primary,
+input[type="submit"].primary,
+input[type="button"].primary {
+    background-color: var(--color-accent);
+    color: var(--color-background);
+}
+
+button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+    filter: brightness(.85);
+}
+
+button:active,
+input[type="submit"]:active,
+input[type="button"]:active {
+    filter: brightness(.7);
 }
 
 button, input[type="submit"], input[type="button"], a {
@@ -53,6 +89,10 @@ code {
     padding: .2em .4em;
     font-size: 85%;
     margin: 0;
+}
+
+.small {
+    font-size: .8em;
 }
 
 :root,
@@ -118,7 +158,6 @@ body header #main-icon {
     display: flex;
     flex-direction: row;
     align-items: center;
-    text-decoration: none;
     font-weight: 900;
     font-size: 1.4em;
     margin: 0px 10px;
@@ -139,7 +178,6 @@ body page-container {
     align-content: center;
     align-items: center;
     position: absolute;
-    overflow-y: auto;
     display: flex;
     height: calc(100% - calc(var(--header-height) + var(--footer-height)));
     bottom: var(--footer-height);
@@ -147,14 +185,47 @@ body page-container {
     width: 100%;
     right: 0px;
     left: 0px;
-    
 }
 
 body page-container main {
     min-width: var(--main-content-width);
     flex-direction: column;
+    overflow-y: hidden;
     margin: 20px auto;
     padding: 0px 30px;
     display: flex;
     flex: 1;
 }
+
+body page-container main.text {
+    overflow-y: auto;
+}
+
+progress-bar {
+    border-radius: 5px;
+    border: 1px solid var(--color-foreground);
+    overflow: hidden;
+    margin: 5px 0px;
+    display: flex;
+    height: 10px;
+    width: 100%;
+}
+
+progress-bar progress-bar-segment {
+    display: block;
+    height: 100%;
+}
+
+progress-bar progress-bar-segment.completed {
+    background-color: mediumseagreen;
+}
+
+progress-bar progress-bar-segment.in-progress {
+    background-color: skyblue;
+}
+
+progress-bar progress-bar-segment.not-started {
+    background-color: gainsboro;
+}
+
+

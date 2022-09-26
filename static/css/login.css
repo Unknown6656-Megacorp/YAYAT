@@ -9,14 +9,10 @@ login-page {
 
 login-page input#login-username,
 login-page input#login-password {
-    border-radius: var(--border-radius);
-    padding: 3px 5px;
     width: 300px;
 }
 
 login-page button#login-button {
-    border-radius: var(--border-radius);
-    padding: 5px 10px;
     width: 200px;
 }
 
