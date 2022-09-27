@@ -11,7 +11,7 @@ import os.path as osp
 
 from flask import Flask, request, jsonify, Response
 from __main__ import app, print_utcnow, print_utc, parse_utc, utc_from_unix, USER_DIR, _DEBUG_
-from projects import Label, AnnotationPose, ExplicitAnnotation, TrackingAnnotationKeyframe, TrackingAnnotation, Frame, Task, Project
+from projects import *
 
 app : Flask
 USER_DIR : str
@@ -319,6 +319,11 @@ def api_projects_tasks_delete(uname : str, project : int, task : int):
     else:
         t.delete()
         return json_ok({ })
+
+
+@secure_api('/api/projects/<int:project>/tasks/<int:task>/completed')
+def api_projects_tasks_completed(uname : str, project : int, task : int):
+    pass
 
 
 # GET:
