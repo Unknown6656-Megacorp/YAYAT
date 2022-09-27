@@ -15,7 +15,7 @@
     {
         let html = '';
 
-        for (const project of projects.concat(projects, projects, projects, projects))
+        for (const project of projects)
         {
             const tasks = await query_api(`projects/${project.id}/tasks/`, {}, console.log);
             const href = `/yayat/projects/${project.id}/`;
@@ -79,10 +79,11 @@
             `;
         }
 
-        $('#project-count').text(projects.length);
         $('project-list').html(html);
-        $('project-preview[href], project-actions button.open[href]').click(elem => {
-            console.log(elem);
-        });
+
+        if (projects.length > 1)
+            $('#project-count').text(`There are currently ${projects.length} active projects.`);
+
+        $('project-preview[href], project-actions button.open[href]').click(elem => window.location.href = $(elem.target).attr('href'));
     }
-})()
+})();

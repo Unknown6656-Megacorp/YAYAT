@@ -1,12 +1,6 @@
 @charset "utf-8";
 
 
-h1.projects-heading {
-    align-items: center;
-    display: flex;
-    margin: 5px 0px;
-}
-
 #projects-search {
     margin-left: auto;
     width: 200px;
@@ -23,6 +17,12 @@ project-list {
     display: flex;
     width: 100%;
     flex: 1;
+}
+
+project-list project-empty {
+    text-align: center;
+    margin: auto;
+    width: 300px;
 }
 
 project-list project-card {
@@ -71,9 +71,10 @@ project-card project-info h2 {
     margin: 0px;
 }
 
+.page-heading[data-project-id]::before,
 project-card project-info h2::after {
     content: '#' attr(data-project-id);
-    margin-left: 10px;
+    margin: 0px 10px;
     font-weight: 100;
     opacity: .4;
 }
@@ -91,3 +92,77 @@ project-card project-actions button {
     width: 100%;
     margin: 2px;
 }
+
+label-list {
+    /* padding: 0px 10px 0px 0px; */
+    flex-direction: column;
+    overflow-y: scroll;
+    display: flex;
+    min-height: 200px;
+    max-height: 500px;
+    width: 100%;
+}
+
+label-list project-label {
+    --color-label: transparent;
+
+    border: 1px solid var(--color-foreground);
+    border-radius: var(--border-radius);
+    background-color: var(--color-toolbars);
+    margin: 2px 2px 2px 0px;
+    padding: 5px 10px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+}
+
+label-list project-label * {
+    z-index: 10;
+}
+
+label-list project-label::before {
+    background-color: var(--color-label);
+    pointer-events: none;
+    position: absolute;
+    display: block;
+    content: '';
+    opacity: .3;
+    z-index: 9;
+    height: 100%;
+    width: calc(100% + 10px);
+    left: -10px;
+}
+
+label-list project-label .label-id,
+label-list project-label .label-order {
+    opacity: .6;
+    width: 60px;
+}
+
+label-list project-label input {
+    margin: auto 10px auto 0px;
+}
+
+label-list project-label input.label-name {
+    font-weight: bold;
+    width: 250px;
+}
+
+label-list project-label .label-colorpicker {
+    height: 100%;
+}
+
+label-list project-label .label-colorhex {
+    width: 65px;
+}
+
+label-list project-label label-grabber {
+    border-left: 1px solid var(--color-foreground);
+    /* background-color: var(--color-inline-code); */
+    margin: -5px -10px -5px auto;
+    width: 20px;
+}
+
+
+

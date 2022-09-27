@@ -8,15 +8,19 @@
             Welcome back, {{uname}}. We hope that you are doing well.
         </p>
         <br/>
-        <h1 class="projects-heading">
+        <h1 class="page-heading">
             Projects
             <input id="projects-search" type="text" placeholder="Search term"/>
             <button id="new-project" class="primary">Create new project</button>
         </h1>
-        <project-list></project-list>
-        <p>
-            There are currently <span id="project-count"></span> active project(s).
-        </p>
+        <project-list>
+            <project-empty>
+                There are currently no active projects.
+                Click the blue button on the top-right
+                side to create a new project.
+            </project-empty>
+        </project-list>
+        <p id="project-count"></p>
     </main>
 {% endblock %}
 {% block scripts %}
