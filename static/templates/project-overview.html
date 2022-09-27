@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/css/projects.css"/>
+{% endblock %}
+{% block content %}
+    <main>
+        <h1 class="page-heading" data-project-id="{{project.id}}">
+            {{project.name}}
+        </h1>
+        <p>
+            This project has been created by <b>{{project.creator}}</b> <span id="date-created"></span>.
+            The project has last been modified <span id="date-modified"></span>.
+        </p>
+        <h2>Labels</h2>
+        <label-list></label-list>
+        <p>
+            [TODO]
+        </p>
+        <h2>Tasks</h2>
+        <task-list></task-list>
+        <p>
+            There are currently <span id="task-count"></span> active task(s) in this project.
+        </p>
+    </main>
+{% endblock %}
+{% block scripts %}
+    <script type="text/javascript" language="javascript" src="/js/jquery.inputmask.js"></script>
+    <script type="text/javascript" language="javascript">
+        const project = JSON.parse(unescape_html("{{project.to_jsonobj()}}"));
+    </script>
+    <script type="text/javascript" language="javascript" src="/js/project-overview.js"></script>
+{% endblock %}

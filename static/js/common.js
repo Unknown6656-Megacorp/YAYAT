@@ -64,3 +64,19 @@ function print_utc(utc)
     }
 }
 
+function unescape_html(html)
+{
+    return html.replace(/&[^;]*;/g, tag =>
+    {
+        return {
+            '&amp;': '&',
+            '&lt;': '<',
+            '&gt;': '>',
+            '&#34;': '\'',
+            '&#39;': '\"',
+        }[tag] || tag;
+    });
+}
+
+
+$('page-container > main.text').parent().css('overflow-y', 'auto');
