@@ -42,14 +42,14 @@ a {
     color: unset;
 }
 
-button, input, textarea {
+button, input, textarea, input[type="color"] {
     border: 1px solid var(--color-accent);
     border-radius: var(--border-radius);
     font-size: var(--font-size);
     padding: 3px 6px;
 }
 
-button, input[type="submit"], input[type="button"] {
+button, input[type="submit"], input[type="button"], input[type="color"] {
     background-color: var(--color-background);
     color: var(--color-accent);
     filter: brightness(1);
@@ -76,7 +76,7 @@ input[type="button"]:active {
     filter: brightness(.7);
 }
 
-button, input[type="submit"], input[type="button"], a {
+button, input[type="submit"], input[type="button"], input[type="color"], a {
     cursor: pointer;
 }
 
@@ -178,6 +178,7 @@ body page-container {
     align-content: center;
     align-items: center;
     position: absolute;
+    overflow-x: auto;
     display: flex;
     height: calc(100% - calc(var(--header-height) + var(--footer-height)));
     bottom: var(--footer-height);
@@ -198,7 +199,15 @@ body page-container main {
 }
 
 body page-container main.text {
-    overflow-y: auto;
+    --main-content-width: 500px;
+
+    overflow: auto;
+}
+
+body page-container main h1.page-heading {
+    align-items: center;
+    display: flex;
+    margin: 5px 0px;
 }
 
 progress-bar {
