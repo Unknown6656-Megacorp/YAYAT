@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/css/error.css"/>
+{% endblock %}
+{% block content %}
+    <main class="text">
+        <h1 class="page-heading">
+            403 - Forbidden
+        </h1>
+        <p>
+            You do not have the permissions required to access this page or resource.
+            <br/>
+            This issue may resolved by logging in.
+        </p>
+        <p>
+            <button class="primary" onclick="window.location.href = `/yayat/login/?redirect=${encodeURI(window.location.pathname)}`">Sign in</button>
+            <button onlcick="window.history.go(-1)">Go back to the previous page</button>
+            <button onclick="window.location.href = '/'">Go to the homepage</button>
+        </p>
+    </main>
+{% endblock %}
+{% block scripts %}
+    <!-- <script type="text/javascript" language="javascript" src="/js/error.js"></script> -->
+{% endblock %}
