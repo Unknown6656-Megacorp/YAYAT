@@ -1,9 +1,10 @@
 import os.path as osp
 from typing import Callable
 
-from flask import Flask, request, send_from_directory, render_template, redirect
+from flask import Flask, request, send_from_directory, render_template, redirect, abort
 from __main__ import app, STATIC_DIR, USER_DIR, __file__ as mainfile
 from server_api import get_logged_in_name, USER_FILE
+from projects import *
 
 
 app : Flask
@@ -12,6 +13,14 @@ get_logged_in_name : Callable[[], str | None]
 
 
 # TODO : caching
+
+
+@app.errorhandler(404)
+def route_404(error, **context):
+    context['error'] = error
+    context['url'] = request.url
+    context['title'] = 'URL Not Found'
+    return render_template('404.html', **context), 404
 
 @app.route('/')
 def route_root():
