@@ -6,7 +6,6 @@ from __main__ import app, STATIC_DIR, USER_DIR, __file__ as mainfile
 from server_api import get_logged_in_name, USER_FILE
 from projects import *
 
-
 app : Flask
 STATIC_DIR : str
 get_logged_in_name : Callable[[], str | None]
@@ -14,6 +13,13 @@ get_logged_in_name : Callable[[], str | None]
 
 # TODO : caching
 
+
+@app.errorhandler(403)
+def route_403(error, **context):
+    context['error'] = error
+    context['url'] = request.url
+    context['title'] = 'Forbidden'
+    return render_template('403.html', **context), 403
 
 @app.errorhandler(404)
 def route_404(error, **context):
@@ -25,7 +31,6 @@ def route_404(error, **context):
 @app.route('/')
 def route_root():
     return redirect('/yayat/')
-    return route_static('redirect.html')
 
 @app.route(f'/favicon.ico')
 def route_favicon():
@@ -66,13 +71,53 @@ def route_index():
 def route_login():
     return render_template('login.html',
         userfile = osp.normpath(osp.join(USER_DIR, USER_FILE)),
-        mainfile = osp.normpath(mainfile)
+        mainfile = osp.normpath(mainfile),
+        title = 'Login'
     )
 
 @app.route(f'/yayat/projects/')
-def route_projects():
+def route_all_projects():
     if (uname := get_logged_in_name()) is None:
-        return redirect('/yayat/login/')
+        return redirect('/yayat/login/', redirect = request.full_path)
     else:
-        return render_template('projects.html', uname = uname)
+        return render_template('projects.html', uname = uname, title = 'Projects')
 
+@app.route(f'/yayat/projects/<int:project>/')
+def route_projects(project : int):
+    if (uname := get_logged_in_name()) is None:
+        return abort(403)
+    elif (proj := Project.get_existing_project(project)) is None:
+        return abort(404)
+    else:
+        return render_template(
+            'project-overview.html',
+            uname = uname,
+            project = proj,
+            title = proj.name
+        )
+
+@app.route(f'/yayat/projects/<int:project>/tasks/')
+def route_projects_tasks(project : int):
+    if (uname := get_logged_in_name()) is None:
+        return abort(403)
+    elif (proj := Project.get_existing_project(project)) is None:
+        return abort(404)
+    else:
+        return render_template(
+            'tasks.html',
+            uname = uname,
+            project = project,
+            title = f'{proj.name} | Tasks'
+        )
+
+@app.route(f'/yayat/tasks/')
+def route_all_tasks():
+    if (uname := get_logged_in_name()) is None:
+        return redirect('/yayat/login/', redirect = request.full_path)
+    else:
+        return render_template(
+            'tasks.html',
+            uname = uname,
+            project = -1,
+            title = 'Tasks'
+        )
