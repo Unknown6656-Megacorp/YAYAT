@@ -1,15 +1,16 @@
 @charset "utf-8";
 
 
+#tasks-search,
 #projects-search {
-    margin-left: auto;
     width: 200px;
 }
 
-#new-project {
+/* #new-project {
     margin-left: 10px;
-}
+} */
 
+task-list,
 project-list {
     /* padding: 0px 10px 0px 0px; */
     flex-direction: column;
@@ -19,13 +20,14 @@ project-list {
     flex: 1;
 }
 
-project-list project-empty {
+project-empty {
     text-align: center;
     margin: auto;
     width: 300px;
 }
 
-project-list project-card {
+task-card,
+project-card {
     border: 1px solid var(--color-foreground);
     background-color: var(--color-element);
     border-radius: var(--border-radius);
@@ -33,12 +35,14 @@ project-list project-card {
     display: flex;
 }
 
-project-list project-card.error {
+task-card.error,
+project-card.error {
     border: 1px solid firebrick;
     background-color: mistyrose;
 }
 
-project-card project-preview {
+task-preview,
+project-preview {
     background: repeating-linear-gradient(
         135deg,
         #999,
@@ -56,39 +60,51 @@ project-card project-preview {
     width: 180px;
 }
 
-project-card project-info,
-project-card project-actions {
+task-info,
+task-actions,
+project-info,
+project-actions {
     margin: 5px;
     flex-direction: column;
     display: flex;
 }
 
-project-card project-info {
+task-info,
+project-info {
     flex: 1;
 }
 
-project-card project-info h2 {
+task-info h2,
+project-info h2 {
     margin: 0px;
 }
 
 .page-heading[data-project-id]::before,
-project-card project-info h2::after {
+project-info h2::after {
     content: '#' attr(data-project-id);
-    margin: 0px 10px;
+    margin: 0px 10px 0px 0px;
     font-weight: 100;
     opacity: .4;
 }
 
-project-card project-info project-progress {
+task-info h2::after,
+project-info h2::after {
+    margin: 0px 10px;
+}
+
+task-info task-progress,
+project-info project-progress {
     margin-top: 10px;
 }
 
-project-card project-actions {
+task-actions,
+project-actions {
     padding: 0px 3px;
     min-width: 100px;
 }
 
-project-card project-actions button {
+task-actions button,
+project-actions button {
     width: 100%;
     margin: 2px;
 }
@@ -96,10 +112,9 @@ project-card project-actions button {
 label-list {
     /* padding: 0px 10px 0px 0px; */
     flex-direction: column;
-    overflow-y: scroll;
+    max-height: 170px;
+    overflow-y: auto;
     display: flex;
-    min-height: 200px;
-    max-height: 500px;
     width: 100%;
 }
 
@@ -114,6 +129,7 @@ label-list project-label {
     align-items: center;
     position: relative;
     overflow: hidden;
+    min-height: 31px;
     display: flex;
 }
 
@@ -140,13 +156,14 @@ label-list project-label .label-order {
     width: 60px;
 }
 
-label-list project-label input {
-    margin: auto 10px auto 0px;
+label-list project-label input,
+label-list project-label button {
+    margin: auto 5px auto 0px;
 }
 
 label-list project-label input.label-name {
     font-weight: bold;
-    width: 250px;
+    width: 200px;
 }
 
 label-list project-label .label-colorpicker {
@@ -155,6 +172,10 @@ label-list project-label .label-colorpicker {
 
 label-list project-label .label-colorhex {
     width: 65px;
+}
+
+label-list project-label .label-deleter {
+    margin-left: auto;
 }
 
 label-list project-label label-grabber {
