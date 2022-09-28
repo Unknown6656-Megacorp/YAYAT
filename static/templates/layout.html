@@ -17,13 +17,20 @@
             <header-separator></header-separator>
             <a href="/yayat/projects/">Projects</a>
             <header-separator class="small"></header-separator>
-            Tasks
+            <a href="/yayat/tasks/">Tasks</a>
             <header-separator class="small"></header-separator>
             [TODO]
             <header-filler></header-filler>
             <header-separator></header-separator>
             [SETTINGS]
         </header>
+        <modal-container class="hidden">
+            <modal-form>
+                <h1 id="modal-title"></h1>
+                <p id="modal-text"></p>
+                <p id="modal-buttons"></p>
+            </modal-form>
+        </modal-container>
         <page-container>
             {% block content %}
             {% endblock content %}

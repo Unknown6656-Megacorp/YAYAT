@@ -118,7 +118,7 @@ body header {
     flex-direction: row;
     align-content: center;
     align-items: center;
-    z-index: 20000;
+    z-index: 2000;
     display: flex;
     top: 0px;
 }
@@ -168,12 +168,50 @@ body footer {
     border-top: 1px solid var(--color-foreground);
     height: var(--footer-height);
     position: fixed;
-    z-index: 10000;
+    z-index: 1000;
     display: block;
     bottom: 0px;
 }
 
-body page-container {
+modal-container {
+    background-color: #00000055;
+    position: fixed;
+    z-index: 90000;
+    display: flex;
+    height: 100%;
+    width: 100%;
+    opacity: 1;
+
+    transition: opacity .5s;
+}
+
+modal-container.hidden {
+    pointer-events: none;
+    opacity: 0;
+}
+
+modal-form {
+    border: 1px solid var(--color-foreground);
+    border-radius: var(--border-radius);
+    background: var(--color-background);
+    flex-direction: column;
+    min-height: 25%;
+    min-width: 40%;
+    padding: 40px;
+    display: flex;
+    margin: auto;
+}
+
+modal-form #modal-title,
+modal-form #modal-text {
+    margin-top: 0px;
+}
+
+modal-form #modal-text {
+    flex: 1;
+}
+
+page-container {
     flex-direction: column;
     align-content: center;
     align-items: center;
@@ -183,12 +221,20 @@ body page-container {
     height: calc(100% - calc(var(--header-height) + var(--footer-height)));
     bottom: var(--footer-height);
     top: var(--header-height);
+    filter: blur(0px);
     width: 100%;
     right: 0px;
     left: 0px;
+
+    transition: filter .5s;
 }
 
-body page-container main {
+modal-container:not(.hidden) ~ page-container {
+    pointer-events: none;
+    filter: blur(20px);
+}
+
+page-container main {
     min-width: var(--main-content-width);
     flex-direction: column;
     overflow-y: hidden;
@@ -198,17 +244,26 @@ body page-container main {
     flex: 1;
 }
 
-body page-container main.text {
+page-container main.text {
     --main-content-width: 500px;
 
     overflow: auto;
 }
 
-body page-container main h1.page-heading {
+page-container main .page-heading {
     align-items: center;
     display: flex;
     margin: 5px 0px;
 }
+
+page-container main .page-heading > *:first-child {
+    margin-left: auto;
+}
+
+page-container main .page-heading > *:not(:first-child) {
+    margin-left: 10px;
+}
+
 
 progress-bar {
     border-radius: 5px;
@@ -238,3 +293,28 @@ progress-bar progress-bar-segment.not-started {
 }
 
 
+
+
+
+/* ///////////////////////////////////////// TODO /////////////////////////////////////////
+
+.scroll-shadows {
+    position: relative;
+    background-color: #FFF;
+}
+
+.shadow-top {
+    height: 20px;
+    position: absolute;
+    background-image: radial-gradient(farthest-side at 50% 0%, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
+    display: none;
+  }
+
+.shadow-bottom {
+    height: 20px;
+    position: absolute;
+    background-image: radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
+    display: none;
+}
+
+*/
