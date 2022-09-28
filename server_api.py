@@ -124,7 +124,7 @@ def get_logged_in_name() -> str | None:
 # don't look too hard at this clusterfuck of a signature, just use it as a decorator.
 def secure_api(route : str) -> Callable[[Callable[[str, dict[str, Any]], Response]], Callable[[dict[str, Any]], Response]]:
     def _decorated(callback : Callable[[str, dict[str, Any]], Response]) -> Callable[[dict[str, Any]], Response]:
-        @app.route(route, endpoint = callback.__name__)
+        @app.route(route, endpoint = callback.__name__, methods = ['GET', 'POST'])
         def _inner(**kwargs):
             uname = get_logged_in_name()
             response : Response = json_error('You are not authorized to perform this action.', 403)
@@ -256,6 +256,14 @@ def api_projects_labels_info(uname : str, project : int, label : int):
         return json_ok(lbl[0].to_jsonobj())
 
 
+@secure_api('/api/projects/<int:project>/labels/change')
+def api_projects_labels_change_all(uname : str, project : int):
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    else:
+        pass # TODO
+
+
 @secure_api('/api/projects/<int:project>/labels/<int:label>/change')
 def api_projects_labels_change(uname : str, project : int, label : int):
     if (proj := Project.get_existing_project(project)) is None:
@@ -283,6 +291,16 @@ def api_projects_tasks(uname : str, project : int):
         return json_error(f'Invalid project id "{project}".')
     else:
         return json_ok([t.to_jsonobj() for t in proj.get_tasks()])
+
+
+@secure_api('/api/tasks/')
+@secure_api('/api/projects/tasks/')
+def api_all_tasks(uname : str):
+    return json_ok([
+        t.to_jsonobj()
+        for p in Project.get_existing_projects()
+        for t in p.get_tasks()
+    ])
 
 
 # GET:
