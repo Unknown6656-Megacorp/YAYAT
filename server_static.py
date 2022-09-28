@@ -112,7 +112,8 @@ def route_projects_tasks(project : int):
         return render_template(
             'tasks.html',
             uname = uname,
-            project = project,
+            project = proj,
+            tasks = [t.to_jsonobj() for t in proj.get_tasks()],
             title = f'{proj.name} | Tasks'
         )
 
@@ -124,6 +125,10 @@ def route_all_tasks():
         return render_template(
             'tasks.html',
             uname = uname,
-            project = -1,
+            tasks = [
+                t.to_jsonobj()
+                for p in Project.get_existing_projects()
+                for t in p.get_tasks()
+            ],
             title = 'Tasks'
         )
