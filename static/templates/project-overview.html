@@ -6,27 +6,43 @@
     <main>
         <h1 class="page-heading" data-project-id="{{project.id}}">
             {{project.name}}
+            <button>Edit</button>
         </h1>
         <p>
             This project has been created by <b>{{project.creator}}</b> <span id="date-created"></span>.
             The project has last been modified <span id="date-modified"></span>.
         </p>
-        <h2>Labels</h2>
-        <label-list></label-list>
-        <p>
-            [TODO]
-        </p>
-        <h2>Tasks</h2>
-        <task-list></task-list>
-        <p>
-            There are currently <span id="task-count"></span> active task(s) in this project.
-        </p>
+        <h2 class="page-heading">
+            Labels
+            <button id="save-labels" class="primary">Save changes</button>
+            <button id="new-label" class="primary">Add a new label</button>
+        </h2>
+        <label-list class="scroll-shadows"></label-list>
+        <br/>
+        <br/>
+        <h2 class="page-heading">
+            Tasks
+            <button id="task-overview">See all project tasks</button>
+            <button id="new-task" class="primary">Create a new task</button>
+        </h2>
+        <task-list class="scroll-shadows"></task-list>
+        {% if project.tasks|length > 1 %}
+            <p>
+                There are currently <span id="task-count"></span> active tasks in this project.
+            </p>
+        {% endif %}
     </main>
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript" language="javascript" src="/js/jquery.inputmask.js"></script>
     <script type="text/javascript" language="javascript">
         const project = JSON.parse(unescape_html("{{project.to_jsonobj()}}"));
+        const tasks = JSON.parse(unescape_html('[' + [
+            // {% for task in project.get_tasks() %}
+                '{{task.to_jsonobj()}}',
+            // {% endfor %}
+        ].join(',') + ']'));
     </script>
     <script type="text/javascript" language="javascript" src="/js/project-overview.js"></script>
+    <script type="text/javascript" language="javascript" src="/js/tasks.js"></script>
 {% endblock %}
