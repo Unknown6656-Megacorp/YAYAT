@@ -15,11 +15,13 @@ $('#login-form').submit(function(event)
     const passw = $('#login-password').val();
     const phash = compute_hash(uname, passw);
 
-    query_api('login', {
+    query_api_sync('login', {
         'uname': uname,
         'phash': phash,
-    }, function(data)
+    }, function()
     {
-        window.location.pathname = '/';
+        const path = new URL(window.location.href).searchParams.get('redirect') || '/'
+
+        window.location.href = window.location.origin + path;
     }, msg => $('#login-error').text(msg));
 });
