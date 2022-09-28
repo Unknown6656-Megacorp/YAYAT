@@ -5,22 +5,32 @@ const TASK_PROGRESS = {
     IN_PROGRESS: 1,
     COMPLETED: 2,
 };
+const API_METHOD = 'GET';
 
+
+function query_api_sync(path, obj, success, error)
+{
+    $.ajax({
+        url: `/api/${path}?`,
+        data: obj,
+        type: API_METHOD,
+        dataType: 'json',
+        contentType: 'application/json',
+        success: d => success(d.response),
+        error: e => error(e.responseJSON?.error || '[Unknown Error]'),
+    });
+}
 
 async function query_api(path, obj, error)
 {
-    path = `/api/${path}?`
-
-    for (const key in obj)
-        path += `&${key}=${obj[key]}`;
-
     try
     {
         const result = await $.ajax({
-            url: path,
-            data: { },
-            type: 'GET',
-            dataType: 'json'
+            url: `/api/${path}`,
+            data: obj,
+            type: API_METHOD,
+            dataType: 'json',
+            contentType: 'application/json'
         });
 
         return result.response;
@@ -31,6 +41,11 @@ async function query_api(path, obj, error)
 
         return undefined;
     }
+}
+
+function get_random_color()
+{
+    return '#' + Math.floor(Math.random() * 0xFFFFFF << 0).toString(16);
 }
 
 function print_utc(utc)
@@ -78,5 +93,112 @@ function unescape_html(html)
     });
 }
 
+function show_modal_notice(title, text, actions)
+{
+    $('#modal-title').text(title);
+    $('#modal-text').html(text);
+
+    let html = '';
+
+    for (const i in actions)
+        html += `<button id="modal-button-${i}">${actions[i][0]}</button>`;
+
+    $('#modal-buttons').html(html);
+    $('modal-container').removeClass('hidden');
+
+    for (const i in actions)
+        $(`#modal-button-${i}`).click(function()
+        {
+            $('modal-container').addClass('hidden');
+            actions[i][1]();
+        });
+}
+
 
 $('page-container > main.text').parent().css('overflow-y', 'auto');
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////// TODO /////////////////////////////////////////
+
+
+var scrollShadow = (function() {
+    var elem, width, height, offset,
+      shadowTop, shadowBottom,
+      timeout;
+  
+    function initShadows() {
+        shadowTop = $("<div>")
+            .addClass("shadow-top")
+            .insertAfter(elem);
+        shadowBottom = $("<div>")
+            .addClass("shadow-bottom")
+            .insertAfter(elem);
+    }
+  
+    function calcPosition() {
+        width = elem.outerWidth();
+        height = elem.outerHeight();
+        offset = elem.position();
+    
+        // update 
+        shadowTop.css({
+            width: width + "px",
+            top: offset.top + "px",
+            left: offset.left + "px"
+        });
+        shadowBottom.css({
+            width: width + "px",
+            top: (offset.top + height - 20) + "px",
+            left: offset.left + "px"
+        });
+    }
+  
+    function addScrollListener() {
+        elem.off("scroll.shadow");
+        elem.on("scroll.shadow", function() {
+            if (elem.scrollTop() > 0) {
+                shadowTop.fadeIn(125);
+            } else {
+                shadowTop.fadeOut(125);
+            }
+
+            if (elem.scrollTop() + height >= elem[0].scrollHeight) {
+                shadowBottom.fadeOut(125);
+            } else {
+                shadowBottom.fadeIn(125);
+            }
+        });
+    }
+  
+    function addResizeListener() {
+        $(window).on("resize.shadow", function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                calcPosition();
+                elem.trigger("scroll.shadow");
+            }, 10);
+        });
+    }
+
+    return {
+        init: function(par) {
+            elem = $(par);
+            initShadows();
+            calcPosition();
+            addScrollListener();
+            addResizeListener();
+            elem.trigger("scroll.shadow");
+            calcPosition();
+        },
+        update: calcPosition
+    };
+}());
+
+scrollShadow.init(".scroll-shadows");
