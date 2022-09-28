@@ -7,129 +7,128 @@ $('#date-created').text(project.created);
 $('#date-modified').text(project.modified);
 
 
+const button_save_labels = $('#save-labels');
 
-let label_html = '';
-
-for (const label of project.labels)
+button_save_labels.css('visibility', 'hidden');
+button_save_labels.click(() =>
 {
-    label_html += `
-        <project-label data-label-id="${label.id}">
-            <span class="label-order">#${label.order + 1}</span>
-            <input class="label-name" type="text" value="${label.name}"/>
-            <input class="label-colorpicker" type="color" value="${label.color}"/>
-            <input class="label-colorhex" type="text" value="${label.color}"/>
-            <span class="label-id">ID: ${label.id}</span>
-            <label-grabber>o</label-grabber>
-        </project-label>
-    `;
+    let labels = [];
+    let index = 0;
+
+    for (let label of $('label-list project-label'))
+    {
+        label = $(label);
+        labels.push({
+            'id': parseInt(label.attr('data-label-id')),
+            'color': label.find('> .label-colorpicker').val(),
+            'name': label.find('> .label-name').val(),
+            'order': index++,
+        });
+    }
+
+    query_api_sync(`projects/${project.id}/labels/change`, { }, function()
+    {
+        // disable warning on leaving page
+        button_save_labels.css('visibility', 'hidden');
+    }, function(error)
+    {
+        show_modal_notice(
+            'An error occurred',
+            `The following error occurred during the saving of the labels:<br/>${error}`,
+            [['Ok', () => { }]]
+        );
+    })
+});
+
+function activate_save_changes()
+{
+    // enable warning on leaving page
+    button_save_labels.css('visibility', 'visible');
 }
 
-$('label-list').html(label_html);
-$('.label-colorpicker').on('change', function()
+function generate_label_html(label)
 {
-    const color = $(this).val();
-    const parent = $(this).parent();
+    const label_item = $(`
+    <project-label data-label-id="${label.id}">
+        <span class="label-order">#${label.order + 1}</span>
+        <input class="label-name" type="text" value="${label.name}"/>
+        <button class="label-colorrand">Random color</button>
+        <input class="label-colorpicker" type="color" value="${label.color}"/>
+        <input class="label-colorhex" type="text" value="${label.color}"/>
+        <span class="label-id">ID: ${label.id}</span>
+        <button class="label-deleter">Delete label</button>
+        <label-grabber>o</label-grabber>
+    </project-label>
+    `).appendTo($('label-list'));
 
-    parent.css('--color-label', color);
-    parent.find('> .label-colorhex').val(color);
-});
-$('.label-colorhex').inputmask({
-    mask: '\\#hhhhhh',
-    greedy: false,
-    definitions: {
-        'h': {
-            validator: '[A-Fa-f0-9]',
-            cardinality: 1
-        }
-    }
-}).keyup(function()
-{
-    let color = $(this).val();
-    const parent = $(this).parent();
+    const colorhex = label_item.children('.label-colorhex');
+    const colorrand = label_item.children('.label-colorrand');
+    const colorpicker = label_item.children('.label-colorpicker');
 
-    color = color.length > 0 ? /#([0-9a-fA-F]*)_*/.exec(color)[1] : '';
 
-    if (color.length == 3)
-        color = `#${color[0]}${color[0]}${color[1]}${color[1]}${color[2]}${color[2]}`;
-    else
-        color = '#' + color.padEnd(6, '0');
-
-    parent.css('--color-label', color);
-    parent.find('> .label-colorpicker').val(color);
-}).keyup();
-
-/*
-(async function main()
-{
-    for (const project of projects)
+    label_item.children('.label-deleter').click(function()
     {
-        const tasks = await query_api(`projects/${project.id}/tasks/`, {}, console.log);
-        const href = `/yayat/projects/${project.id}/`;
-        let progress = {};
-        let frames = 0;
+        label_item.remove();
 
-        progress[TASK_PROGRESS.NOT_YET_STARTED] = 0;
-        progress[TASK_PROGRESS.IN_PROGRESS] = 0;
-        progress[TASK_PROGRESS.COMPLETED] = 0;
-
-        for (const task of tasks)
-        {
-            progress[task.progress] += 1;
-            frames += task.frames.length;
+        activate_save_changes();
+    });
+    label_item.children('.label-name').change(activate_save_changes);
+    colorrand.click(() => colorhex.val(get_random_color()).change());
+    colorpicker.on('input change', e => colorhex.val($(e.target).val()).change());
+    colorhex.inputmask({
+        mask: '\\#hhhhhh',
+        greedy: false,
+        definitions: {
+            'h': {
+                validator: '[A-Fa-f0-9]',
+                cardinality: 1
+            }
         }
+    });
+    colorhex.on('keyup change paste', function()
+    {
+        let color = $(this).val();
+        const parent = $(this).parent();
 
-        html += `
-            <project-card>
-                <project-preview href="${href}"></project-preview>
-                <project-info>
-                    <a href="${href}">
-                        <h2 data-project-id="${project.id}">${project.name}</h2>
-                    </a>
-                    <span class="small">
-                        Created by <b>${project.creator}</b> ${print_utc(project.created)},
-                        last modified ${print_utc(project.modified)}
-                        <br/>
-                        ${tasks.length} task${tasks.length != 1 ? 's' : ''},
-                        ${project.labels.length} label${project.labels.length != 1 ? 's' : ''},
-                        ${frames} image${frames != 1 ? 's' : ''}
-                    </span>
-                    <project-progress>
-                        <progress-bar>
-                            <progress-bar-segment class="completed" style="width: ${100.0 * progress[TASK_PROGRESS.COMPLETED] / tasks.length}%"></progress-bar-segment>
-                            <progress-bar-segment class="in-progress" style="width: ${100.0 * progress[TASK_PROGRESS.IN_PROGRESS] / tasks.length}%"></progress-bar-segment>
-                            <progress-bar-segment class="not-started" style="width: ${100.0 * progress[TASK_PROGRESS.NOT_YET_STARTED] / tasks.length}%"></progress-bar-segment>
-                        </progress-bar>
-                        <b class="small">
-                            <span style="color: seagreen">
-                                ${progress[TASK_PROGRESS.COMPLETED]} completed
-                            </span>
-                            &nbsp;/&nbsp;
-                            <span style="color: cornflowerblue">
-                                ${progress[TASK_PROGRESS.IN_PROGRESS]} in progress
-                            </span>
-                            &nbsp;/&nbsp;
-                            <span style="color: gray">
-                                ${progress[TASK_PROGRESS.NOT_YET_STARTED]} open
-                            </span>
-                            &nbsp;/&nbsp;
-                            ${tasks.length} total
-                        </b>
-                    </project-progress>
-                </project-info>
-                <project-actions>
-                    <button class="primary open" href="${href}">Open</button>
-                    <button>[ TODO ]</button>
-                    <button>[ TODO ]</button>
-                </project-actions>
-            </project-card>
-        `;
-    }
+        color = color.length > 0 ? /#([0-9a-fA-F]*)_*/.exec(color)[1] : '';
 
-    $('project-list').html(html);
+        if (color.length == 3)
+            color = `#${color[0]}${color[0]}${color[1]}${color[1]}${color[2]}${color[2]}`;
+        else
+            color = '#' + color.padEnd(6, '0');
 
-    if (projects.length > 1)
-        $('#project-count').text(`There are currently ${projects.length} active projects.`);
+        parent.css('--color-label', color);
+        colorpicker.val(color);
+    });
+    colorhex.change();
+    colorhex.on('keyup change paste', activate_save_changes);
+}
 
-    $('project-preview[href], project-actions button.open[href]').click(elem => window.location.href = $(elem.target).attr('href'));
-})();
-//*/
+
+for (const label of project.labels)
+    generate_label_html(label);
+
+$('#new-label').click(function()
+{
+    query_api_sync(
+        `projects/${project.id}/labels/create`,
+        {
+            'name': `Label ${$('project-label').length + 1}`,
+            'color': get_random_color(),
+        },
+        generate_label_html,
+        function(error)
+        {
+            show_modal_notice(
+                'An error occurred',
+                `The following error occurred during the creation of a new label:<br/>${error}`,
+                [['Ok', () => { }]]
+            );
+        }
+    )
+});
+$('#task-overview').click(function()
+{
+    window.location.href = `/yayat/projects/${project.id}/tasks/`;
+});
+
