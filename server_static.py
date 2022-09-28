@@ -36,6 +36,12 @@ def route_root():
 def route_favicon():
     return route_static('favicon.ico')
 
+@app.route(f'/static/<path:path>')
+@app.route(f'/static/templates/<path:path>')
+@app.route(f'/yayat/static/<path:path>')
+def route_direct_static(path : str = ''):
+    return abort(403)
+
 @app.route(f'/yayat/<path:path>')
 def route_static(path : str = ''):
     file = osp.join(STATIC_DIR, path)
