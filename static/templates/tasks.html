@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/css/projects.css"/>
+{% endblock %}
+{% block content %}
+    <main>
+        <h1 class="page-heading">
+            {% if project is defined %}
+                {{project.name}} &nbsp; - &nbsp; Tasks
+            {% else %}
+                All Tasks
+            {% endif %}
+            <input id="tasks-search" type="text" placeholder="Search term"/>
+            {% if project is defined %}
+                <button id="new-task" class="primary">Create a new task</button>
+            {% endif %}
+        </h1>
+        <task-list class="scroll-shadows"></task-list>
+        {% if tasks|length > 1 %}
+            {% if project is defined %}
+                <p>
+                    There are currently <span id="task-count"></span> active tasks in project "{{project.name}}".
+                </p>
+            {% else %}
+                <p>
+                    There are currently <span id="task-count"></span> active tasks.
+                </p>
+            {% endif %}
+        {% endif %}
+    </main>
+{% endblock %}
+{% block scripts %}
+    <script type="text/javascript" language="javascript">
+        const tasks = JSON.parse(unescape_html('{{tasks}}'));
+    </script>
+    <script type="text/javascript" language="javascript" src="/js/tasks.js"></script>
+{% endblock %}
