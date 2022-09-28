@@ -40,8 +40,8 @@
                             <h2 data-project-id="${project.id}">${project.name}</h2>
                         </a>
                         <span class="small">
-                            Created by <b>${project.creator}</b> ${print_utc(project.created)},
-                            last modified ${print_utc(project.modified)}
+                            Created by <b>${project.creator}</b> ${print_utc(project.created)}.
+                            Last modified ${print_utc(project.modified)}.
                             <br/>
                             ${tasks.length} task${tasks.length != 1 ? 's' : ''},
                             ${project.labels.length} label${project.labels.length != 1 ? 's' : ''},
