@@ -2,15 +2,20 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Iterable, TypeVar
+import binascii
 import os.path as osp
 import os
 import json
 
+import cv2
+import numpy as np
 from __main__ import print_utc, parse_utc, PROJECTS_DIR
 
 PROJECTS_DIR : str
 PROJECT_FILE = 'project.json'
 TASK_FILE = 'task.json'
+
+PREVIEW_SIZE : int = 200
 
 
 T = TypeVar('T')
@@ -21,6 +26,56 @@ def get_next_free_id(collection : Iterable[T], selector : Callable[[T], int], st
 
 def fetch_by_id(collection : Iterable[T], selector : Callable[[T], int], id : int) -> T | None:
         return next((e for e in collection if selector(e) == id), None)
+
+def normalize_frame_image(image : np.ndarray) -> np.ndarray | None:
+    if len(image) == 0:
+        return None
+    elif len(image.shape) == 2:
+        return normalize_frame_image(image[:, :, None])
+    elif len(image.shape) != 3:
+        return None
+    else:
+        if image.dtype == np.int8:
+            image = image / 127.0
+        elif image.dtype == np.uint8:
+            image = image / 255.0
+        elif image.dtype == np.int16:
+            image = image / 32767.0
+        elif image.dtype == np.uint16:
+            image = image / 65535.0
+        elif image.dtype != np.float64:
+            image = image.astype(np.float64)
+
+        if image.shape[2] == 1:
+            return normalize_frame_image(np.repeat(image, 3, 2))
+        elif image.shape[2] != 4:
+            image = np.resize(image, (image.shape[0], image.shape[1], 4))
+
+            if image.shape[2] < 4:
+                image[:, :, 3] = 1.0
+
+            return normalize_frame_image(image)
+        else:
+            return (np.clip(image, 0, 1) * 255).astype(np.uint8)
+
+def create_frame_preview(image : np.ndarray) -> np.ndarray:
+    preview = np.zeros((PREVIEW_SIZE, PREVIEW_SIZE, image.shape[2]), dtype = image.dtype)
+    height, width = image.shape[:2]
+
+    if width > height:
+        n_width = PREVIEW_SIZE
+        n_height = int(height / width * n_width)
+    else:
+        n_height = PREVIEW_SIZE
+        n_width = int(width / height * n_height)
+
+    offs_x = int((PREVIEW_SIZE - n_width) / 2)
+    offs_y = int((PREVIEW_SIZE - n_height) / 2)
+    resized = cv2.resize(image, (n_width, n_height), interpolation = cv2.INTER_AREA)
+
+    preview[offs_y:offs_y + n_height, offs_x:offs_x + n_width, :] = resized
+
+    return preview
 
 
 
@@ -150,6 +205,7 @@ class TrackingAnnotation:
 
 @dataclass
 class Frame:
+    id : int
     local_image_filename : str
     original_image_filename : str
     explicit_annotations : list[ExplicitAnnotation]
@@ -157,6 +213,7 @@ class Frame:
 
     def to_jsonobj(self) -> dict[str, Any]:
         return {
+            'id': self.id,
             'local_image_filename': self.local_image_filename,
             'original_image_filename': self.original_image_filename,
             'explicit_annotations': [a.to_jsonobj() for a in self.explicit_annotations],
@@ -166,6 +223,7 @@ class Frame:
     @staticmethod
     def from_jsonobj(jsonobj : dict[str, Any]) -> 'Frame':
         return Frame(
+            id = int(jsonobj['id']),
             local_image_filename = jsonobj['local_image_filename'],
             original_image_filename = jsonobj['original_image_filename'],
             explicit_annotations = [ExplicitAnnotation.from_jsonobj(a) for a in jsonobj['explicit_annotations']],
@@ -191,10 +249,13 @@ class Task:
         self.created = datetime.utcnow()
         self.modified = self.created
         self.directory = osp.join(project.directory, str(id))
+        self.image_directory = osp.join(self.directory, 'images')
+        self.preview_directory = osp.join(self.directory, 'previews')
         self.task_file = osp.join(self.directory, TASK_FILE)
 
-        if not osp.isdir(self.directory):
-            os.mkdir(self.directory)
+        for dir in [self.directory, self.image_directory, self.preview_directory]:
+            if not osp.isdir(dir):
+                os.mkdir(dir)
 
         self.create_json()
         self.read_json()
@@ -246,6 +307,58 @@ class Task:
     def mark_as_completed(self) -> None:
         self.progress = TaskProgress.COMPLETED
         self.update_modified(datetime.utcnow())
+
+    def add_frames(self, images : list[tuple[np.ndarray, str]]) -> list[Frame]:
+        id = 0 if len(self.frames) == 0 else max(f.id for f in self.frames)
+        frames = []
+
+        for image, name in images:
+            id += 1
+            local_name = f'{id:010}-{hex(binascii.crc32(name.encode("utf-8")) & 0xffffffff)}.png'
+            local_path = osp.join(self.image_directory, local_name)
+            image = normalize_frame_image(image)
+
+            if image is not None:
+                preview = create_frame_preview(image)
+                preview_path = osp.join(self.preview_directory, local_name)
+
+                cv2.imwrite(local_path, image)
+                cv2.imwrite(preview_path, preview)
+
+            frame = Frame(id, local_name, name, [], image is None)
+            frames.append(frame)
+
+        self.frames += frames
+        self.update_modified(datetime.utcnow())
+
+        return frames
+
+    def add_frame(self, image : np.ndarray, name : str) -> Frame:
+        return self.add_frames([image, name])[0]
+
+    def get_image(self, frame : Frame) -> np.ndarray | None:
+        try:
+            path = osp.join(self.image_directory, frame.local_image_filename)
+            image = cv2.imread(path)
+
+            if len(image) > 0:
+                return image
+        except:
+            pass
+
+        return None
+
+    def get_preview(self, frame : Frame) -> np.ndarray | None:
+        try:
+            path = osp.join(self.preview_directory, frame.local_image_filename)
+            image = cv2.imread(path)
+
+            if len(image) > 0:
+                return image
+        except:
+            pass
+
+        return None
 
 
 
