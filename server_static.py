@@ -103,7 +103,7 @@ def route_projects(project : int):
         )
 
 @app.route(f'/yayat/projects/<int:project>/new-task/')
-def route_projects_tasks(project : int):
+def route_projects_new_task(project : int):
     if (uname := get_logged_in_name()) is None:
         return abort(403)
     elif (proj := Project.get_existing_project(project)) is None:

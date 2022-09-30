@@ -127,8 +127,6 @@ $('#new-label').click(function()
         }
     )
 });
-$('#task-overview').click(function()
-{
-    window.location.href = `/yayat/projects/${project.id}/tasks/`;
-});
+$('#new-task').click(() => window.location.href = `/yayat/projects/${project.id}/new-task/`);
+$('#task-overview').click(() => window.location.href = `/yayat/projects/${project.id}/tasks/`);
 
