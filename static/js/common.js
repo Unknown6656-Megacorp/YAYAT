@@ -11,11 +11,11 @@ const API_METHOD = 'POST';
 function query_api_sync(path, obj, success, error)
 {
     $.ajax({
-        url: `/api/${path}?`,
-        data: obj,
+        url: `/api/${path}`,
+        data: API_METHOD == 'GET' ? obj : JSON.stringify(obj),
         type: API_METHOD,
         dataType: 'json',
-        contentType: 'application/json',
+        contentType: 'application/json; charset=utf-8',
         success: d => success(d.response),
         error: e => error(e.responseJSON?.error || e.statusText || '[Unknown Error]'),
     });
@@ -27,10 +27,10 @@ async function query_api(path, obj, error)
     {
         const result = await $.ajax({
             url: `/api/${path}`,
-            data: obj,
+            data: API_METHOD == 'GET' ? obj : JSON.stringify(obj),
             type: API_METHOD,
             dataType: 'json',
-            contentType: 'application/json'
+            contentType: 'application/json; charset=utf-8',
         });
 
         return result.response;
