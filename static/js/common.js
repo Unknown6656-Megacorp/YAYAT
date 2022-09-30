@@ -5,7 +5,7 @@ const TASK_PROGRESS = {
     IN_PROGRESS: 1,
     COMPLETED: 2,
 };
-const API_METHOD = 'GET';
+const API_METHOD = 'POST';
 
 
 function query_api_sync(path, obj, success, error)
@@ -17,7 +17,7 @@ function query_api_sync(path, obj, success, error)
         dataType: 'json',
         contentType: 'application/json',
         success: d => success(d.response),
-        error: e => error(e.responseJSON?.error || '[Unknown Error]'),
+        error: e => error(e.responseJSON?.error || e.statusText || '[Unknown Error]'),
     });
 }
 
@@ -37,7 +37,7 @@ async function query_api(path, obj, error)
     }
     catch (err)
     {
-        error(err.responseJSON.error);
+        error(err.responseJSON?.error || e.statusText || '[Unknown Error]');
 
         return undefined;
     }
