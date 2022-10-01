@@ -32,6 +32,9 @@
 {% block scripts %}
     <script type="text/javascript" language="javascript">
         const tasks = JSON.parse(unescape_html('{{tasks}}'));
+        // {% if project is defined %}
+        const project = JSON.parse(unescape_html('{{project.to_jsonobj()}}'));
+        // {% endif %}
     </script>
     <script type="text/javascript" language="javascript" src="/js/tasks.js"></script>
 {% endblock %}
