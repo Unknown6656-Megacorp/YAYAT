@@ -43,6 +43,7 @@ a {
 }
 
 button, input, textarea, input[type="color"] {
+    background-color: var(--color-element);
     border: 1px solid var(--color-accent);
     border-radius: var(--border-radius);
     font-size: var(--font-size);
@@ -55,7 +56,6 @@ input[readonly], textarea[readonly] {
 }
 
 button, input[type="submit"], input[type="button"], input[type="color"] {
-    background-color: var(--color-background);
     color: var(--color-accent);
     filter: brightness(1);
 
@@ -66,7 +66,7 @@ button.primary,
 input[type="submit"].primary,
 input[type="button"].primary {
     background-color: var(--color-accent);
-    color: var(--color-background);
+    color: var(--color-element);
 }
 
 button:hover,
@@ -254,8 +254,8 @@ page-container main {
     min-width: var(--main-content-width);
     flex-direction: column;
     overflow-y: hidden;
-    margin: 20px auto;
-    padding: 0px 30px;
+    margin: 0px auto;
+    padding: 10px 30px;
     display: flex;
     flex: 1;
 }
@@ -309,6 +309,54 @@ progress-bar progress-bar-segment.not-started {
 }
 
 
+tab-control {
+    background-color: var(--color-background);
+    border: 1px solid var(--color-foreground);
+    border-radius: var(--border-radius);
+    flex-direction: column;
+    display: flex;
+}
+
+tab-control tab-header {
+    border-top-right-radius: calc(var(--border-radius) - 1px);
+    border-top-left-radius: calc(var(--border-radius) - 1px);
+    background-color: var(--color-code);
+    overflow: hidden;
+    display: flex;
+}
+
+tab-control tab-header button {
+    border: none;
+    border-bottom: 1px solid var(--color-foreground);
+    border-right: 1px solid var(--color-foreground);
+    background-color: var(--color-toolbars);
+    border-radius: 0px;
+    padding: 10px;
+    outline-color: transparent !important;
+
+    transition: .3s;
+}
+
+tab-control tab-header button.active {
+    border-bottom: 1px solid transparent;
+    background-color: var(--color-background);
+    pointer-events: none;
+}
+
+tab-control tab-header tab-header-filler {
+    border-bottom: 1px solid var(--color-foreground);
+    flex: 1;
+}
+
+tab-control tab-page {
+    border-top: none;
+    padding: 10px;
+    display: none;
+}
+
+tab-control tab-page.active {
+    display: unset;
+}
 
 
 
