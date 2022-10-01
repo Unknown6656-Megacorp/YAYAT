@@ -15,7 +15,7 @@ function query_api_sync(path, obj, success, error)
         data: API_METHOD == 'GET' ? obj : JSON.stringify(obj),
         type: API_METHOD,
         dataType: 'json',
-        contentType: 'application/json; charset=utf-8',
+        contentType: 'application/json',
         success: d => success(d.response),
         error: e => error(e.responseJSON?.error || e.statusText || '[Unknown Error]'),
     });
@@ -30,7 +30,7 @@ async function query_api(path, obj, error)
             data: API_METHOD == 'GET' ? obj : JSON.stringify(obj),
             type: API_METHOD,
             dataType: 'json',
-            contentType: 'application/json; charset=utf-8',
+            contentType: 'application/json',
         });
 
         return result.response;
@@ -51,7 +51,7 @@ function get_random_color()
 function print_utc(utc)
 {
     const now = new Date();
-    const date = Date.parse(utc);
+    const date = new Date(Date.parse(utc));
     const seconds = Math.floor((now - date) / 1000);
 
     if (seconds < 60)
@@ -77,6 +77,13 @@ function print_utc(utc)
         else
             return `on ${date.getDate()} ${date.toLocaleString('en', { month: 'long' })} ${date.getFullYear()}`;
     }
+}
+
+function print_absolute_utc(utc)
+{
+    const date = new Date(Date.parse(utc));
+
+    return `${date.getFullYear().toString().padStart(4, '0')}-${date.getMonth().toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
 }
 
 function unescape_html(html)
