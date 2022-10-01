@@ -141,7 +141,7 @@ def route_projects_task_main(project : int, task : int):
         return abort(404)
     else:
         return render_template(
-            'task_main.html',
+            'task-main.html',
             uname = uname,
             project = proj,
             task = t,
@@ -158,7 +158,7 @@ def route_projects_task_export(project : int, task : int):
         return abort(404)
     else:
         return render_template(
-            'task_export.html',
+            'task-export.html',
             uname = uname,
             project = proj,
             task = t,
@@ -175,7 +175,7 @@ def route_projects_task_edit(project : int, task : int):
         return abort(404)
     else:
         return render_template(
-            'task_edit.html',
+            'task-edit.html',
             uname = uname,
             project = proj,
             task = t,
