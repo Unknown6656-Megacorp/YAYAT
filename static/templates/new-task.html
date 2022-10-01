@@ -1,25 +1,41 @@
 {% extends "layout.html" %}
 {% block head %}
+    <link rel="stylesheet" type="text/css" href="/css/new-task.css"/>
 {% endblock %}
 {% block content %}
     <main class="text">
         <h1>Create a new Task</h1>
         Name of the task:
-        <input type="text" id="task-name" data-error/>
+        <input type="text" id="task-name"/>
         <p>
-            <fieldset>
-                <legend>Footage</legend>
-                <p>
-                    juj
-                    <br/>
-                    lol
-                </p>
-                <p>
-                    test
-                </p>
-            </fieldset>
+            Footage:
+            <file-list>
+            </file-list>
         </p>
-        <button id="btn-cancel">Cancel</button>
+        <p>
+            Add footage:
+            <tab-control>
+                <tab-page header="Upload data">
+                    Drop your footage in the field below or use the "browse"-button to select the input file(s).
+                    <file-drop-area></file-drop-area>
+                    <input type="file"/>
+                </tab-page>
+                <tab-page header="On the server">
+                    Use the following 
+                    page-1
+                </tab-page>
+                <tab-page header="From URLs">
+                    page-2
+                </tab-page>
+            </tab-control>
+        </p>
+        <p>
+            Options:
+        </p>
+        <p>
+            <button id="btn-cancel">Cancel</button>
+            <button id="btn-create" class="primary">Create Task</button>
+        </p>
     </main>
 {% endblock %}
 {% block scripts %}
