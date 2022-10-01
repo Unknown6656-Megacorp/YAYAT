@@ -8,27 +8,39 @@
         Name of the task:
         <input type="text" id="task-name"/>
         <p>
-            Footage:
+            Footage files (<span id="files-count">0</span>):
             <file-list>
+                <file-element>test.png</file-element>
+                <file-element>video.mp4</file-element>
+                <file-element>https://example.com/video</file-element>
+                <file-element>/local/file.jpeg</file-element>
             </file-list>
         </p>
-        <p>
-            Add footage:
-            <tab-control>
-                <tab-page header="Upload data">
-                    Drop your footage in the field below or use the "browse"-button to select the input file(s).
-                    <file-drop-area></file-drop-area>
-                    <input type="file"/>
-                </tab-page>
-                <tab-page header="On the server">
-                    Use the following 
-                    page-1
-                </tab-page>
-                <tab-page header="From URLs">
-                    page-2
-                </tab-page>
-            </tab-control>
-        </p>
+        Add footage:
+        <tab-control>
+            <tab-page header="On the server">
+                Use the following navigator to add footage stored on the YAYAT server:
+                <server-navigator>
+                    <server-navigator-controls>
+                        <button id="server-back">Back</button>
+                        <button id="server-up">Up</button>
+                        <input type="text" id="server-path" value="/"/>
+                        <button id="server-go" class="primary">Go</button>
+                    </server-navigator-controls>
+                    <table id="server-file-list"></table>
+                </server-navigator>
+            </tab-page>
+            <tab-page header="Upload data">
+                Drop your footage in the field below or use the file selector button to select the input file(s).
+                <file-drop-area>
+                    Drop files here
+                </file-drop-area>
+                <input type="file"/>
+            </tab-page>
+            <tab-page header="From the web">
+                page-2
+            </tab-page>
+        </tab-control>
         <p>
             Options:
         </p>
