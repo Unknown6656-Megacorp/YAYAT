@@ -48,7 +48,7 @@ function get_random_color()
     return '#' + Math.floor(Math.random() * 0xFFFFFF << 0).toString(16);
 }
 
-function print_utc(utc)
+function print_relative_utc(utc)
 {
     const now = new Date();
     const date = new Date(Date.parse(utc));

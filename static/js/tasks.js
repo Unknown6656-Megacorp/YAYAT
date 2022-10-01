@@ -14,11 +14,11 @@ for (const task of tasks)
                     <h2 data-task-id="${task.id}">${task.name}</h2>
                 </a>
                 <span class="small">
-                    Created by <b>${task.creator}</b> ${print_utc(task.created)} in 
+                    Created by <b>${task.creator}</b> ${print_relative_utc(task.created)} in 
                     <a href="/yayat/projects/${task.project}/">
                         <b>project #${task.project}</b>
                     </a>.
-                    Last modified ${print_utc(task.modified)}.
+                    Last modified ${print_relative_utc(task.modified)}.
                 </span>
                 <task-progress>
                     <progress-bar>

@@ -1,7 +1,7 @@
 'use strict';
 
-project.created = print_utc(project.created);
-project.modified = print_utc(project.modified);
+project.created = print_relative_utc(project.created);
+project.modified = print_relative_utc(project.modified);
 
 $('#date-created').text(project.created);
 $('#date-modified').text(project.modified);
