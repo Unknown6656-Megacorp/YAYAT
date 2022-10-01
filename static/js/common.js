@@ -114,10 +114,44 @@ function show_modal_notice(title, text, actions)
         });
 }
 
+function uuid()
+{
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+}
+
 
 $('page-container > main.text').parent().css('overflow-y', 'auto');
 
+$('tab-control').each(function()
+{
+    const tab_control = $(this);
+    const tab_header = $('<tab-header></tab-header>');
 
+    tab_control.prepend(tab_header);
+
+    for (let tab_page of tab_control.children('tab-page'))
+    {
+        const id = uuid();
+
+        tab_page = $(tab_page);
+        tab_page.attr('data-id', id);
+        tab_header.append(`<button data-id="${id}">${tab_page.attr('header')}</button>`);
+    }
+
+    tab_header.append('<tab-header-filler></tab-header-filler>');
+    tab_header.children('button[data-id]').click(e =>
+    {
+        const button = $(e.target);
+        const id = button.attr('data-id');
+
+        tab_header.children('button[data-id]').removeClass('active');
+        button.addClass('active');
+        tab_control.children('tab-page').removeClass('active');
+        tab_control.find(`tab-page[data-id="${id}"]`).addClass('active');
+    }).first().click();
+});
 
 
 
