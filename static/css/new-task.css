@@ -1,9 +1,7 @@
 @charset "utf-8";
 
-
 main.text {
-    --main-content-width: unset;
-    flex: 1;
+    --main-content-width: unset !important;
 }
 
 file-list {
@@ -14,9 +12,62 @@ file-list {
     overflow-y: scroll;
     height: 350px;
     display: flex;
-    padding: 5px;
 }
 
 file-list file-element {
-
+    border-bottom: 1px solid #77777777;
+    font-family: var(--font-mono);
+    font-size: .75em;
+    padding: 5px;
 }
+
+file-drop-area {
+    border:  1px solid var(--color-foreground);
+    border-radius: var(--border-radius);
+    background: repeating-linear-gradient(
+        135deg,
+        transparent,
+        transparent 5px,
+        var(--color-element) 5px,
+        var(--color-element) 10px
+    );
+    color: var(--color-inline-code);
+    font-size: 1.5em;
+    margin: 10px 0px;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+server-navigator {
+    border:  1px solid var(--color-foreground);
+    border-radius: var(--border-radius);
+    height: 350px;
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+}
+
+server-navigator server-navigator-controls {
+    border-bottom: 1px solid var(--color-foreground);
+    display: flex;
+}
+
+server-navigator server-navigator-controls button,
+server-navigator server-navigator-controls input {
+    border-radius: 0px;
+}
+
+server-navigator server-navigator-controls #server-path {
+    outline: none !important;
+    flex: 1;
+}
+
+#server-file-list {
+    overflow-y: scroll;
+    display: inline-block;
+    flex: 1;
+}
+
