@@ -110,7 +110,7 @@ def route_projects_new_task(project : int):
         return abort(404)
     else:
         return render_template(
-            'new_task.html',
+            'new-task.html',
             uname = uname,
             project = proj,
             title = 'New Task'
