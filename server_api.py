@@ -407,12 +407,31 @@ def human_readable_size(num : int | float, scale : int | float = 1024.0, suffix 
 
 # GET
 #   { dir : str }
+# RETURN
+#   {
+#       dir : str,
+#       files : list[{
+#            name : str,
+#            path : str,
+#            type : 'd' or 'f',
+#            size : str,
+#            created : datetime,
+#            modified : datetime
+#       }]
+#   }
 @secure_api('/api/filesystem')
 def api_filesystem(args : dict, uname : str):
     if (dir := args.get('dir', None)) is None:
         return json_error('No directory has been provided.')
+
+    dir = osp.normpath(dir)
+
+    if not osp.isdir(dir):
+        return json_error(f'Unknown directory "{dir}"')
     else:
-        files = ['.', '..'] + os.listdir(dir) if osp.isdir(dir) else []
+        files = os.listdir(dir)
+        files.sort(key = lambda f: osp.splitext(f)[::-1])
+        files = ['.', '..'] + files
         isroot = dir in ['..', '/..', '\\..', '/../', '\\..\\', './..', '.\\..', './../', '.\\..\\']
         dir = osp.normpath(dir)
 
@@ -431,7 +450,10 @@ def api_filesystem(args : dict, uname : str):
                 'modified': print_utc(utc_from_unix(stat.st_mtime)),
             }
 
-        return json_ok(files)
+        return json_ok({
+            'dir': dir,
+            'files': files
+        })
 
 
 
