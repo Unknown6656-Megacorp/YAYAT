@@ -49,6 +49,11 @@ button, input, textarea, input[type="color"] {
     padding: 3px 6px;
 }
 
+input[readonly], textarea[readonly] {
+    border-color: var(--color-foreground);
+    background-color: transparent;
+}
+
 button, input[type="submit"], input[type="button"], input[type="color"] {
     background-color: var(--color-background);
     color: var(--color-accent);
@@ -73,11 +78,22 @@ input[type="button"]:hover {
 button:active,
 input[type="submit"]:active,
 input[type="button"]:active {
+    outline-offset: 0px;
+    outline: 1px solid var(--color-accent);
     filter: brightness(.7);
+}
+
+input:not([readonly]):focus,
+textarea:not([readonly]):focus {
+    outline-color: var(--color-accent);
 }
 
 button, input[type="submit"], input[type="button"], input[type="color"], a {
     cursor: pointer;
+}
+
+fieldset {
+    border-radius: var(--border-radius);
 }
 
 code {
