@@ -3,13 +3,16 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Iterable, TypeVar
 import binascii
+import tempfile
+import shutil
 import os.path as osp
 import os
 import json
 
 import cv2
 import numpy as np
-from __main__ import print_utc, parse_utc, PROJECTS_DIR
+import ffmpeg
+from __main__ import print_utc, parse_utc, PROJECTS_DIR, _DEBUG_
 
 PROJECTS_DIR : str
 PROJECT_FILE = 'project.json'
@@ -26,7 +29,6 @@ VALID_VIDEO_EXTENSIONS = [
     '.asf', '.avi', '.f4v', '.gif', '.gifv', '.m4v', '.qt', '.m4p', '.mpg', '.mp2', '.mpeg', '.mpe',
     '.mpv', '.ts', '.m2ts', '.ogv', '.ogg', '.vob', '.wmv', '.avif', '.avs', '.avchd', '.hdv', '.swf'
 ]
-
 
 
 T = TypeVar('T')
@@ -89,11 +91,43 @@ def create_frame_preview(image : np.ndarray) -> np.ndarray:
     return preview
 
 def read_images(bytes : bytearray | None) -> list[np.ndarray]:
+    if bytes is None or len(bytes) < 5:
+        return []
 
+    temp = tempfile.TemporaryDirectory()
+    images = []
 
+    try:
+        in_file = osp.join(temp.name, 'input')
 
-    image = cv2.imdecode(np.array(bytes, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
-    pass
+        with open(in_file, 'wb') as f:
+            f.write(bytes)
+
+        ffmpeg.input(in_file)\
+              .output(osp.join(temp.name, 'output-%010d.png'))\
+              .overwrite_output()\
+              .run(quiet = _DEBUG_)
+
+        out_files = [f for f in os.listdir(temp.name) if f.startswith('output-')]
+        out_files.sort()
+
+        for file in out_files:
+            file = osp.join(temp.name, file)
+            if osp.isfile(file):
+                try:
+                    if len(image := cv2.imread(file, cv2.IMREAD_UNCHANGED)) > 0:
+                        images.append(image)
+                except:
+                    continue
+    except Exception as e:
+        breakpoint()
+        print(e)
+
+    if osp.isdir(temp.name):
+        shutil.rmtree(temp.name)
+
+    return images
+
 
 
 @dataclass
