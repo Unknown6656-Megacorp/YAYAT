@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 import os; os.sep = '/'
 import os.path as osp
 import argparse
+import elevate
 
 from flask import Flask, request, send_from_directory
 
@@ -12,6 +13,7 @@ USER_DIR = osp.join(CURRENT_DIR, 'userdata')
 PROJECTS_DIR = osp.join(USER_DIR, 'projects')
 _DEBUG_ = True
 
+elevate.elevate(show_console = False)
 os.chdir(CURRENT_DIR)
 
 if not osp.isdir(USER_DIR): os.mkdir(USER_DIR)
