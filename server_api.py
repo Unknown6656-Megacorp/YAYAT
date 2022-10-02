@@ -1,12 +1,12 @@
 from dataclasses import dataclass
-import enum
-import re
 from typing import Any, Callable
 from datetime import datetime
 import hashlib
+import urllib
 import random
 import string
-import sys
+import re
+import io
 import os
 import os.path as osp
 
@@ -344,19 +344,52 @@ def api_projects_tasks_completed(args : dict, uname : str, project : int, task :
 
 # GET [multipart/form-data]:
 #   {
-#       'file[]' : [<file>],
-#       'footage[]' : list[{
-#           file : str,
-#           uuid : str,
-#           type : ['s', 'u', 'w']
-#       }]
+#       <uuid> : [<file>],
+#       files : str = json(
+#           list[{
+#               file : str,
+#               uuid : str,
+#               type : ['s', 'u', 'w']
+#           }]
+#       )
 #   }
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/upload')
 def api_projects_tasks_upload(args : dict, uname : str, project : int, task : int):
-    if (files := args.get('files')) is None:
-        return json_error('No directory has been provided.')
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    elif (t := proj.get_task(task)) is None:
+        return json_error(f'Invalid task id "{task}" in project "{project}".')
     else:
-        pass # TODO
+        try:
+            frames = []
+            files = json.loads(request.form.get('files', []))
+        except Exception as e:
+            return json_error(f'Invalid form submission data: {e}')
+
+        for file in files:
+            try:
+                image = None
+
+                match origin := FrameOrigin(file['type']):
+                    case FrameOrigin.SERVER:
+                        image = cv2.imread(file['file'], cv2.IMREAD_UNCHANGED)
+                    case FrameOrigin.UPLOAD:
+                        if (file_obj := request.files.get(file['uuid'], None)) is not None:
+                            file_obj.stream.seek(0)
+                            image = cv2.imdecode(np.frombuffer(file_obj.stream.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+                    case FrameOrigin.WEBURL:
+                        req = urllib.request.urlopen(file['file'])
+                        image = cv2.imdecode(np.array(bytearray(req.read()), dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+
+                frame = t.add_frame(image, file['file'], origin)
+
+                if frame.deleted:
+                    t.delete_frame(frame, True)
+                else:
+                    frames.append(frame)
+            except Exception as e:
+                pass # TODO
+        pass # TODO : report back frames
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/download')
