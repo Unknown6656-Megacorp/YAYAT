@@ -88,6 +88,12 @@ def create_frame_preview(image : np.ndarray) -> np.ndarray:
 
     return preview
 
+def read_images(bytes : bytearray | None) -> list[np.ndarray]:
+
+
+
+    image = cv2.imdecode(np.array(bytes, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+    pass
 
 
 @dataclass
@@ -354,7 +360,7 @@ class Task:
         return frames
 
     def add_frame(self, image : np.ndarray, name : str, origin : FrameOrigin) -> Frame:
-        return self.add_frames([image, name, origin])[0]
+        return self.add_frames([(image, name, origin)])[0]
 
     def delete_frame(self, frame : Frame, purge : bool = False) -> None:
         index = None
