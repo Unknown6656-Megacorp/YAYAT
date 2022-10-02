@@ -253,37 +253,30 @@ file_input.change(() => add_upload_files(file_input[0].files));
 
 
 
-function upload_form_data(path, success, error)
-{
-    $.ajax({
-        url: `/api/${path}`,
-        data: form_data,
-        type: 'POST',
-        dataType: 'multipart/form-data',
-        cache: false,
-        contentType: false,
-        processData: false,
-        success: d => success(d.response),
-        error: e => error(e.responseJSON?.error || e.statusText || '[Unknown Error]'),
-    });
-}
-
-
-
 
 
 $('#btn-create').click(() =>
 {
-    query_api(`projects/${project.id}`)
+    query_api_sync(`projects/${project.id}/tasks/create`, {
+        name: $('#task-name').val()
+    }, data => {
+        form_data.delete('footage[]');
 
-    const name = $('#task-name').val();
+        files.forEach(f => form_data.append('footage[]', JSON.stringify(f)));
 
-    form_data.set('name', name);
-    form_data.delete('footage[]');
+        $.ajax({
+            url: `/api/projects/${project.id}/tasks/${data.id}/upload`,
+            data: form_data,
+            type: 'POST',
+            dataType: 'multipart/form-data',
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: d => console.log(d.response),
+            error: e => console.log(e.responseJSON?.error || e.statusText || '[Unknown Error]'),
+        });
 
-    files.forEach(f => form_data.append('footage[]', JSON.stringify(f)));
-
-    upload_form_data('echo', console.log, console.log);
+    }, error => show_modal_notice('An error occurred', error, [['Ok', () => { }]]));
 })
 
 
