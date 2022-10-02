@@ -5,7 +5,7 @@
 
 :root {
     --font-main: 'Bahnschrift', 'Helvetica', 'Arial', 'Lucida Grande', sans-serif;
-    --font-mono: ui-monospace, 'Cascadia', 'Consolas', 'Courier New', 'Courier', 'Lucida Console', 'Ubuntu Mono', monospace;
+    --font-mono: ui-monospace, 'Cascadia', 'Consolas', 'Courier New', 'Courier', 'Lucida Console', 'Ubuntu Mono', monospace, monospace;
     --font-size: 14pt;
 
     --color-foreground: #222;
@@ -88,6 +88,11 @@ textarea:not([readonly]):focus {
     outline-color: var(--color-accent);
 }
 
+input[readonly]:focus,
+textarea[readonly]:focus {
+    outline-color: transparent;
+}
+
 button, input[type="submit"], input[type="button"], input[type="color"], a {
     cursor: pointer;
 }
@@ -109,6 +114,16 @@ code {
 
 .small {
     font-size: .8em;
+}
+
+.right {
+    float: right;
+}
+
+[disabled] {
+    pointer-events: none;
+    filter: grayscale();
+    opacity: .7;
 }
 
 :root,
@@ -253,7 +268,7 @@ modal-container:not(.hidden) ~ page-container {
 page-container main {
     min-width: var(--main-content-width);
     flex-direction: column;
-    overflow-y: hidden;
+    /* overflow-y: hidden; */
     margin: 0px auto;
     padding: 10px 30px;
     display: flex;
@@ -263,7 +278,8 @@ page-container main {
 page-container main.text {
     --main-content-width: 500px;
 
-    overflow: auto;
+    max-width: calc(2 * var(--main-content-width));
+    /* overflow: auto; */
 }
 
 page-container main .page-heading {
