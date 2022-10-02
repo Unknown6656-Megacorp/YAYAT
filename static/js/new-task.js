@@ -265,7 +265,7 @@ $('#btn-create').click(() =>
             url: `/api/projects/${project.id}/tasks/${data.id}/upload`,
             data: form_data_final,
             type: 'POST',
-            dataType: 'multipart/form-data',
+            dataType: 'json',
             cache: false,
             contentType: false,
             processData: false,
