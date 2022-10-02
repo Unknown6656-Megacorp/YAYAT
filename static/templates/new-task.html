@@ -9,17 +9,22 @@
         <input type="text" id="task-name"/>
         <p>
             Footage files (<span id="files-count">0</span>):
-            <file-list>
-                <file-element>test.png</file-element>
-                <file-element>video.mp4</file-element>
-                <file-element>https://example.com/video</file-element>
-                <file-element>/local/file.jpeg</file-element>
-            </file-list>
+            <file-list></file-list>
         </p>
         Add footage:
         <tab-control>
+            <tab-page header="Upload data">
+                Drop your footage in the field below or use the file selector button to select the input file(s).
+                <file-drop-area>
+                    Drop files here
+                </file-drop-area>
+                <input id="file-input" type="file" hidden/>
+                <button id="upload-files" class="primary right" multiple>Upload files</button>
+            </tab-page>
             <tab-page header="On the server">
-                Use the following navigator to add footage stored on the YAYAT server:
+                Use the following navigator to add footage stored on the YAYAT server.
+                Please note that the file system navigator only displays files with supported file extensions.
+                <br/>
                 <server-navigator>
                     <server-navigator-controls>
                         <button id="server-back">Back</button>
@@ -30,26 +35,31 @@
                     <table id="server-file-list"></table>
                 </server-navigator>
             </tab-page>
-            <tab-page header="Upload data">
-                Drop your footage in the field below or use the file selector button to select the input file(s).
-                <file-drop-area>
-                    Drop files here
-                </file-drop-area>
-                <input type="file"/>
-            </tab-page>
             <tab-page header="From the web">
-                page-2
+                You can add files by pasting the URL into the field below:
+                <p>
+                    <input type="url" id="web-url" placeholder="https://www.example.com/image.png"/>
+                </p>
+                <button class="primary right" id="web-submit">Submit</button>
             </tab-page>
         </tab-control>
-        <p>
-            Options:
-        </p>
+        <fieldset>
+            <legend>Options:</legend>
+            [TODO]
+            <br>- skip video frames
+            <br>- ignore duplicates
+            <br>- ignore invalid files
+            <br>- ...
+        </fieldset>
         <p>
             <button id="btn-cancel">Cancel</button>
-            <button id="btn-create" class="primary">Create Task</button>
+            <button id="btn-create" class="primary right">Create Task</button>
         </p>
     </main>
 {% endblock %}
 {% block scripts %}
+    <script type="text/javascript" language="javascript">
+        const project = JSON.parse(unescape_html("{{project.to_jsonobj()}}"));
+    </script>
     <script type="text/javascript" language="javascript" src="/js/new-task.js"></script>
 {% endblock %}
