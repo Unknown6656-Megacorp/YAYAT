@@ -141,7 +141,7 @@ def secure_api(route : str) -> Callable[[Callable[[str, dict[str, Any]], Respons
     return _decorated
 
 
-# GET:
+# POST:
 #   { uname : str, phash : str }
 # Sets login cookies
 @app.route('/api/login', methods = ['GET', 'POST'])
@@ -190,7 +190,7 @@ def api_projects(args : dict, uname : str):
     return json_ok([p.to_jsonobj() for p in Project.get_existing_projects()])
 
 
-# GET:
+# POST:
 #   { name : str }
 # Returns the newly created project json
 @secure_api('/api/projects/create')
@@ -219,7 +219,7 @@ def api_projects_delete(args : dict, uname : str, project : int):
         return json_ok({ })
 
 
-# GET:
+# POST:
 #   { name : str, color : str }
 # Returns the label json
 @secure_api('/api/projects/<int:project>/labels/create')
@@ -301,7 +301,7 @@ def api_all_tasks(args : dict, uname : str):
     ])
 
 
-# GET:
+# POST:
 #   { name : str }
 # Returns the task json
 @secure_api('/api/projects/<int:project>/tasks/create')
@@ -342,7 +342,7 @@ def api_projects_tasks_completed(args : dict, uname : str, project : int, task :
     pass # TODO
 
 
-# GET [multipart/form-data]:
+# POST [multipart/form-data]:
 #   {
 #       <uuid> : [<file>],
 #       files : str = json(
@@ -353,6 +353,8 @@ def api_projects_tasks_completed(args : dict, uname : str, project : int, task :
 #           }]
 #       )
 #   }
+# RETURN:
+#   [ Frame ]
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/upload')
 def api_projects_tasks_upload(args : dict, uname : str, project : int, task : int):
     if (proj := Project.get_existing_project(project)) is None:
@@ -393,8 +395,18 @@ def api_projects_tasks_upload(args : dict, uname : str, project : int, task : in
         return json_ok([f.to_jsonobj() for f in frames])
 
 
+@secure_api('/api/projects/<int:project>/tasks/<int:task>/upload/progress')
+def api_projects_tasks_upload_progress(args : dict, uname : str, project : int, task : int):
+    pass
+
+
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/download')
 def api_projects_tasks_download(args : dict, uname : str, project : int, task : int):
+    pass # TODO
+
+
+@secure_api('/api/projects/<int:project>/tasks/<int:task>/download/progress')
+def api_projects_tasks_download_progress(args : dict, uname : str, project : int, task : int):
     pass # TODO
 
 
@@ -430,9 +442,9 @@ def human_readable_size(num : int | float, scale : int | float = 1024.0, suffix 
         num /= scale
     return '(way too fucking large, bro)'
 
-# GET
+# POST:
 #   { dir : str }
-# RETURN
+# RETURN:
 #   {
 #       dir : str,
 #       files : list[{
