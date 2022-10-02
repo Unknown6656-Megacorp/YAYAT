@@ -141,12 +141,6 @@ def secure_api(route : str) -> Callable[[Callable[[str, dict[str, Any]], Respons
     return _decorated
 
 
-if _DEBUG_:
-    @app.route('/api/echo', methods = ['GET', 'POST'])
-    def api_echo():
-        return json_ok(request.get_json() or request.args)
-
-
 # GET:
 #   { uname : str, phash : str }
 # Sets login cookies
