@@ -18,6 +18,17 @@ TASK_FILE = 'task.json'
 PREVIEW_SIZE : int = 200
 
 
+VALID_IMAGE_EXTENSIONS = [
+    '.jpg', '.jpeg', '.jpe', '.jp2', '.png', '.bmp', '.tif', '.tiff', '.sr', '.ras', '.pbm', '.pgm', '.ppm', '.dib'
+]
+VALID_VIDEO_EXTENSIONS = [
+    '.mov', '.mp4', '.mts', '.mkv', '.webm', '.flv', '.3g2', '.3gp', '.amv', '.rle', '.rpza', '.m2t',
+    '.asf', '.avi', '.f4v', '.gif', '.gifv', '.m4v', '.qt', '.m4p', '.mpg', '.mp2', '.mpeg', '.mpe',
+    '.mpv', '.ts', '.m2ts', '.ogv', '.ogg', '.vob', '.wmv', '.avif', '.avs', '.avchd', '.hdv', '.swf'
+]
+
+
+
 T = TypeVar('T')
 def get_next_free_id(collection : Iterable[T], selector : Callable[[T], int], starter : int = 0) -> int:
     while any(e for e in collection if selector(e) == starter):
