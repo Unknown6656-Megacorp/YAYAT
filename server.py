@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-import os
+import os; os.sep = '/'
 import os.path as osp
 import argparse
 

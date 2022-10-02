@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import enum
+import re
 from typing import Any, Callable
 from datetime import datetime
 import hashlib
@@ -32,9 +33,6 @@ USERS = { }
 
 COOKIE_API_TOKEN = '__cookie_api_token'
 COOKIE_USER_NAME = '__cookie_api_uname'
-
-# VALID_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.jpe', '.jp2', '.png', '.bmp', '.tif', '.tiff', '.sr', '.ras', '.pbm', '.pgm', '.ppm', '.dib']
-
 
 
 def sha512(string : str) -> str: return hashlib.sha512(string.encode('utf-8')).hexdigest()
@@ -141,6 +139,12 @@ def secure_api(route : str) -> Callable[[Callable[[str, dict[str, Any]], Respons
             return response
         return _inner
     return _decorated
+
+
+if _DEBUG_:
+    @app.route('/api/echo', methods = ['GET', 'POST'])
+    def api_echo():
+        return json_ok(request.get_json() or request.args)
 
 
 # GET:
@@ -423,36 +427,48 @@ def human_readable_size(num : int | float, scale : int | float = 1024.0, suffix 
 def api_filesystem(args : dict, uname : str):
     if (dir := args.get('dir', None)) is None:
         return json_error('No directory has been provided.')
-
-    dir = osp.normpath(dir)
-
-    if not osp.isdir(dir):
+    elif not osp.isdir(dir):
         return json_error(f'Unknown directory "{dir}"')
     else:
+        def _normpath(path : str) -> str:
+            return path.replace('\\', '/')
+
         files = os.listdir(dir)
         files.sort(key = lambda f: osp.splitext(f)[::-1])
-        files = ['.', '..'] + files
-        isroot = dir in ['..', '/..', '\\..', '/../', '\\..\\', './..', '.\\..', './../', '.\\..\\']
+        files.sort(key = lambda f: not osp.isdir(osp.join(dir, f)))
+        files.insert(0, '..')
+        isroot = re.match('^(\\.?/|[a-zA-Z]:/?|)\\.\\./?$', _normpath(dir)) is not None
         dir = osp.normpath(dir)
 
         if isroot: # list drives on windows
-            files = [chr(x) + ':\\' for x in range(65, 91) if os.path.exists(chr(x) + ':')]
+            files = [chr(x) + ':/' for x in range(65, 91) if os.path.exists(chr(x) + ':')]
 
-        for i, file in enumerate(files):
-            path = file if isroot else osp.join(dir, file)
-            stat = os.stat(path)
-            files[i] = {
-                'name': file,
-                'path': path,
-                'type': 'd' if osp.isdir(path) else 'f',
-                'size': human_readable_size(stat.st_size),
-                'created': print_utc(utc_from_unix(stat.st_ctime)),
-                'modified': print_utc(utc_from_unix(stat.st_mtime)),
-            }
+        filtered_files = []
+
+        for file in files:
+            if isroot:
+                path = file
+            elif file == '..' and (_normpath(dir) == '/' or _normpath(dir).endswith(':/')):
+                path = '/..'
+            else:
+                path = osp.normpath(osp.join(dir, file))
+
+            isdir = osp.isdir(path)
+
+            if isdir or path.lower().endswith(tuple(VALID_IMAGE_EXTENSIONS + VALID_VIDEO_EXTENSIONS)):
+                stat = os.stat(path)
+                filtered_files.append({
+                    'name': file + os.sep if isdir else file,
+                    'path': _normpath(path),
+                    'type': 'd' if isdir else 'f',
+                    'size': human_readable_size(stat.st_size),
+                    'created': print_utc(utc_from_unix(stat.st_ctime)),
+                    'modified': print_utc(utc_from_unix(stat.st_mtime)),
+                })
 
         return json_ok({
-            'dir': dir,
-            'files': files
+            'dir': _normpath(dir),
+            'files': filtered_files
         })
 
 
