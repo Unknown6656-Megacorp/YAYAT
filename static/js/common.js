@@ -100,6 +100,11 @@ function unescape_html(html)
     });
 }
 
+function hide_modal_notice()
+{
+    $('modal-container').addClass('hidden');
+}
+
 function show_modal_notice(title, text, actions)
 {
     $('#modal-title').text(title);
@@ -116,7 +121,7 @@ function show_modal_notice(title, text, actions)
     for (const i in actions)
         $(`#modal-button-${i}`).click(function()
         {
-            $('modal-container').addClass('hidden');
+            hide_modal_notice();
             actions[i][1]();
         });
 }
