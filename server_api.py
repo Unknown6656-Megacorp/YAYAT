@@ -361,35 +361,36 @@ def api_projects_tasks_upload(args : dict, uname : str, project : int, task : in
         return json_error(f'Invalid task id "{task}" in project "{project}".')
     else:
         try:
-            frames = []
+            frames : list[Frame] = []
             files = json.loads(request.form.get('files', []))
         except Exception as e:
             return json_error(f'Invalid form submission data: {e}')
 
         for file in files:
             try:
-                image = None
+                bytes = None
 
                 match origin := FrameOrigin(file['type']):
                     case FrameOrigin.SERVER:
-                        image = cv2.imread(file['file'], cv2.IMREAD_UNCHANGED)
+                        with open(file['file'], 'rb') as f:
+                            bytes = bytearray(f.read())
                     case FrameOrigin.UPLOAD:
                         if (file_obj := request.files.get(file['uuid'], None)) is not None:
-                            file_obj.stream.seek(0)
-                            image = cv2.imdecode(np.frombuffer(file_obj.stream.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+                            bytes = bytearray(file_obj.stream.read())
                     case FrameOrigin.WEBURL:
                         req = urllib.request.urlopen(file['file'])
-                        image = cv2.imdecode(np.array(bytearray(req.read()), dtype=np.uint8), cv2.IMREAD_UNCHANGED)
+                        bytes = bytearray(req.read())
 
-                frame = t.add_frame(image, file['file'], origin)
+                for image in read_images(bytes):
+                    frame = t.add_frame(image, file['file'], origin)
 
-                if frame.deleted:
-                    t.delete_frame(frame, True)
-                else:
-                    frames.append(frame)
+                    if frame.deleted:
+                        t.delete_frame(frame, True)
+                    else:
+                        frames.append(frame)
             except Exception as e:
                 pass # TODO
-        pass # TODO : report back frames
+        return json_ok([f.to_jsonobj() for f in frames])
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/download')
