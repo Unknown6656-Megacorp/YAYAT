@@ -250,23 +250,20 @@ file_input.change(() => add_upload_files(file_input[0].files));
 
 
 
-
-
-
-
-
 $('#btn-create').click(() =>
 {
     query_api_sync(`projects/${project.id}/tasks/create`, {
         name: $('#task-name').val()
     }, data => {
-        form_data.delete('footage[]');
+        const form_data_final = new FormData();
 
-        files.forEach(f => form_data.append('footage[]', JSON.stringify(f)));
+        form_data_final.set('files', JSON.stringify(files));
+        form_data.getAll(FILE_UPLOAD_KEY)
+                 .forEach(f => form_data_final.append(f['uuid'], f));
 
         $.ajax({
             url: `/api/projects/${project.id}/tasks/${data.id}/upload`,
-            data: form_data,
+            data: form_data_final,
             type: 'POST',
             dataType: 'multipart/form-data',
             cache: false,
@@ -275,7 +272,6 @@ $('#btn-create').click(() =>
             success: d => console.log(d.response),
             error: e => console.log(e.responseJSON?.error || e.statusText || '[Unknown Error]'),
         });
-
     }, error => show_modal_notice('An error occurred', error, [['Ok', () => { }]]));
 })
 
