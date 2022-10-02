@@ -1,8 +1,5 @@
 @charset "utf-8";
 
-main.text {
-    --main-content-width: unset !important;
-}
 
 file-list {
     border: 1px solid var(--color-foreground);
@@ -15,10 +12,64 @@ file-list {
 }
 
 file-list file-element {
+    --file-element-height: 24px;
+
     border-bottom: 1px solid #77777777;
     font-family: var(--font-mono);
-    font-size: .75em;
-    padding: 5px;
+    align-items: center;
+    display: flex;
+    padding: 2px;
+}
+
+file-list file-element::before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: var(--file-element-height);
+    width: var(--file-element-height);
+    content: '';
+}
+
+file-list file-element[data-type="s"]::before {
+    background-image: url('/img/icon-server.svg');
+}
+
+file-list file-element[data-type="u"]::before {
+    background-image: url('/img/icon-upload.svg');
+}
+
+file-list file-element[data-type="w"]::before {
+    background-image: url('/img/icon-web.svg');
+}
+
+file-list file-element input,
+file-list file-element button {
+    font-size: .9em;
+}
+
+file-list file-element input.file-name {
+    border: none;
+    padding: 0px;
+    flex: 1;
+}
+
+file-list file-element button {
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin: 0px 0px 0px 4px;
+    height: 100%;
+    width: var(--file-element-height);
+}
+
+file-list file-element button.file-up {
+    background-image: url('/img/icon-up.svg');
+}
+
+file-list file-element button.file-down {
+    background-image: url('/img/icon-down.svg');
+}
+
+file-list file-element button.file-remove {
+    background-image: url('/img/icon-delete.svg');
 }
 
 file-drop-area {
@@ -66,8 +117,72 @@ server-navigator server-navigator-controls #server-path {
 }
 
 #server-file-list {
+    border-spacing: 0px;
     overflow-y: scroll;
     display: inline-block;
     flex: 1;
+}
+
+#server-file-list tr:hover {
+    background-color: var(--color-inline-code);
+}
+
+#server-file-list tr td {
+    white-space: nowrap;
+    padding: 0px 4px;
+}
+
+#server-file-list tr td.file-name {
+    width: 100%;
+}
+
+#server-file-list tr[data-type="d"] td.file-name {
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#server-file-list tr td.file-name::before {
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin-right: 5px;
+    position: relative;
+    display: inline-block;
+    content: ' ';
+    height: 16px;
+    width: 16px;
+}
+
+#server-file-list tr[data-type="d"] td.file-name::before {
+    background-image: url('/img/icon-folder.svg');
+}
+
+#server-file-list tr[data-type="f"] td.file-name::before {
+    background-image: url('/img/icon-file.svg');
+}
+
+#server-file-list tr td.file-size,
+#server-file-list tr td.file-created,
+#server-file-list tr td.file-modified {
+    font-variant-numeric: tabular-nums lining-nums;
+    text-align: right;
+}
+
+#web-url {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+#web-submit,
+#upload-files {
+    width: 150px;
+}
+
+file-drop-area {
+    cursor: pointer;
+}
+
+#btn-cancel,
+#btn-create  {
+    width: 200px;
 }
 
