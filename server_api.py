@@ -134,7 +134,7 @@ def secure_api(route : str) -> Callable[[Callable[[str, dict[str, Any]], Respons
                     entry = USER_TOKENS[uname]
                     entry.date = datetime.utcnow()
                     USER_TOKENS[uname] = entry
-                response = callback(uname = uname, args = request.get_json() or request.args or { }, **kwargs)
+                response = callback(uname = uname, args = request.get_json(silent = True) or request.args or { }, **kwargs)
 
             return response
         return _inner
@@ -342,28 +342,21 @@ def api_projects_tasks_completed(args : dict, uname : str, project : int, task :
     pass # TODO
 
 
-# GET:
-#   { files : list[str] }
-@secure_api('/api/projects/<int:project>/tasks/<int:task>/upload_local')
-def api_projects_tasks_upload_local(args : dict, uname : str, project : int, task : int):
+# GET [multipart/form-data]:
+#   {
+#       'file[]' : [<file>],
+#       'footage[]' : list[{
+#           file : str,
+#           uuid : str,
+#           type : ['s', 'u', 'w']
+#       }]
+#   }
+@secure_api('/api/projects/<int:project>/tasks/<int:task>/upload')
+def api_projects_tasks_upload(args : dict, uname : str, project : int, task : int):
     if (files := args.get('files')) is None:
         return json_error('No directory has been provided.')
     else:
         pass # TODO
-
-# GET:
-#   { urls : list[str] }
-@secure_api('/api/projects/<int:project>/tasks/<int:task>/upload_web')
-def api_projects_tasks_upload_web(args : dict, uname : str, project : int, task : int):
-    if (urls := args.get('urls')) is None:
-        return json_error('No directory has been provided.')
-    else:
-        pass # TODO
-
-
-@secure_api('/api/projects/<int:project>/tasks/<int:task>/upload_remote')
-def api_projects_tasks_upload_remote(args : dict, uname : str, project : int, task : int):
-    pass # TODO
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/download')
