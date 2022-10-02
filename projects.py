@@ -214,11 +214,18 @@ class TrackingAnnotation:
         )
 
 
+class FrameOrigin(Enum):
+    SERVER = 's'
+    UPLOAD = 'u'
+    WEBURL = 'w'
+
+
 @dataclass
 class Frame:
     id : int
     local_image_filename : str
     original_image_filename : str
+    original_image_source : FrameOrigin
     explicit_annotations : list[ExplicitAnnotation]
     deleted : bool
 
@@ -227,6 +234,7 @@ class Frame:
             'id': self.id,
             'local_image_filename': self.local_image_filename,
             'original_image_filename': self.original_image_filename,
+            'original_image_source' : self.original_image_source.value,
             'explicit_annotations': [a.to_jsonobj() for a in self.explicit_annotations],
             'deleted': self.deleted,
         }
@@ -237,6 +245,7 @@ class Frame:
             id = int(jsonobj['id']),
             local_image_filename = jsonobj['local_image_filename'],
             original_image_filename = jsonobj['original_image_filename'],
+            original_image_source = FrameOrigin(jsonobj['original_image_source']),
             explicit_annotations = [ExplicitAnnotation.from_jsonobj(a) for a in jsonobj['explicit_annotations']],
             deleted = bool(jsonobj['deleted'])
         )
@@ -319,11 +328,11 @@ class Task:
         self.progress = TaskProgress.COMPLETED
         self.update_modified(datetime.utcnow())
 
-    def add_frames(self, images : list[tuple[np.ndarray, str]]) -> list[Frame]:
+    def add_frames(self, images : list[tuple[np.ndarray, str, FrameOrigin]]) -> list[Frame]:
         id = 0 if len(self.frames) == 0 else max(f.id for f in self.frames)
         frames = []
 
-        for image, name in images:
+        for image, name, origin in images:
             id += 1
             local_name = f'{id:010}-{hex(binascii.crc32(name.encode("utf-8")) & 0xffffffff)}.png'
             local_path = osp.join(self.image_directory, local_name)
@@ -336,7 +345,7 @@ class Task:
                 cv2.imwrite(local_path, image)
                 cv2.imwrite(preview_path, preview)
 
-            frame = Frame(id, local_name, name, [], image is None)
+            frame = Frame(id, local_name, name, origin, [], image is None)
             frames.append(frame)
 
         self.frames += frames
@@ -344,13 +353,29 @@ class Task:
 
         return frames
 
-    def add_frame(self, image : np.ndarray, name : str) -> Frame:
-        return self.add_frames([image, name])[0]
+    def add_frame(self, image : np.ndarray, name : str, origin : FrameOrigin) -> Frame:
+        return self.add_frames([image, name, origin])[0]
+
+    def delete_frame(self, frame : Frame, purge : bool = False) -> None:
+        index = None
+        for i, f in enumerate(self.frames):
+            if f.id == frame.id:
+                f.deleted = True
+                frame.deleted = True
+                index = i
+                break
+
+        if purge and index is not None:
+            path = osp.join(self.image_directory, frame.local_image_filename)
+            self.frames = self.frames[:index] + self.frames[index + 1:]
+
+            if osp.exists(path):
+                os.remove(path)
 
     def get_image(self, frame : Frame) -> np.ndarray | None:
         try:
             path = osp.join(self.image_directory, frame.local_image_filename)
-            image = cv2.imread(path)
+            image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
 
             if len(image) > 0:
                 return image
@@ -362,7 +387,7 @@ class Task:
     def get_preview(self, frame : Frame) -> np.ndarray | None:
         try:
             path = osp.join(self.preview_directory, frame.local_image_filename)
-            image = cv2.imread(path)
+            image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
 
             if len(image) > 0:
                 return image
