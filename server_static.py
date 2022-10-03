@@ -137,7 +137,7 @@ def route_projects_tasks(project : int | None = None):
         return render_template('tasks.html', **args)
 
 @app.route(f'/yayat/projects/<int:project>/tasks/<int:task>/')
-def route_projects_task_main(project : int, task : int):
+def route_projects_task_overview(project : int, task : int):
     if (uname := get_logged_in_name()) is None:
         return abort(403)
     elif (proj := Project.get_existing_project(project)) is None:
@@ -146,7 +146,7 @@ def route_projects_task_main(project : int, task : int):
         return abort(404)
     else:
         return render_template(
-            'task-main.html',
+            'task-overview.html',
             uname = uname,
             project = proj,
             task = t,
