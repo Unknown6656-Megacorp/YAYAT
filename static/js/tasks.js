@@ -8,7 +8,7 @@ for (const task of tasks)
     const href = `/yayat/projects/${task.project}/tasks/${task.id}/`;
     html += `
         <task-card>
-            <task-preview href="${href}"></task-preview>
+            <task-preview class="open" href="${href}"></task-preview>
             <task-info>
                 <a href="${href}">
                     <h2 data-task-id="${task.id}">${task.name}</h2>
@@ -32,8 +32,8 @@ for (const task of tasks)
             </task-info>
             <task-actions>
                 <button class="primary open" href="${href}">Open</button>
-                <button class="export" href="${href}export/">Export</button>
-                <button class="edit" href="${href}edit/">Edit</button>
+                <button class="export open" href="${href}export/">Export</button>
+                <button class="edit open" href="${href}edit/">Edit</button>
             </task-actions>
         </task-card>
     `;
@@ -42,4 +42,4 @@ for (const task of tasks)
 $('task-list').html(html);
 $('#task-count').text(tasks.length);
 $('#new-task').click(() => window.location.href = `/yayat/projects/${project__id}/new-task/`);
-$('task-preview[href], task-actions button[href]').click(elem => window.location.href = $(elem.target).attr('href'));
+$('task-preview').click(elem => window.location.href = $(elem.target).attr('href'));

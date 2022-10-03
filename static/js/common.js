@@ -136,6 +136,8 @@ function uuid()
 
 $('page-container > main.text').parent().css('overflow-y', 'auto');
 
+$('.open[href]').click(elem => window.location.href = $(elem.target).attr('href'));
+
 $('tab-control').each(function()
 {
     const tab_control = $(this);
@@ -164,7 +166,6 @@ $('tab-control').each(function()
         tab_control.find(`tab-page[data-id="${id}"]`).addClass('active');
     }).first().click();
 });
-
 
 
 

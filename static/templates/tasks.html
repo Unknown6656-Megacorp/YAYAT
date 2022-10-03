@@ -4,6 +4,11 @@
 {% endblock %}
 {% block content %}
     <main>
+        {% if project is defined %}
+        <p>
+            <button class="open" href="../">Back to project overview</button>
+        </p>
+        {% endif %}
         <h1 class="page-heading">
             {% if project is defined %}
                 {{project.name}} &nbsp; - &nbsp; Tasks

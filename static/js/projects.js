@@ -34,7 +34,7 @@
 
             html += `
                 <project-card>
-                    <project-preview href="${href}"></project-preview>
+                    <project-preview class="open" href="${href}"></project-preview>
                     <project-info>
                         <a href="${href}">
                             <h2 data-project-id="${project.id}">${project.name}</h2>
@@ -72,18 +72,17 @@
                     </project-info>
                     <project-actions>
                         <button class="primary open" href="${href}">Open</button>
-                        <button>[ TODO ]</button>
-                        <button>[ TODO ]</button>
+                        <button class="open" >[ TODO ]</button>
+                        <button class="open" >[ TODO ]</button>
                     </project-actions>
                 </project-card>
             `;
         }
 
         $('project-list').html(html);
+        $('project-preview').click(elem => window.location.href = $(elem.target).attr('href'));
 
         if (projects.length > 1)
             $('#project-count').text(`There are currently ${projects.length} active projects.`);
-
-        $('project-preview[href], project-actions button.open[href]').click(elem => window.location.href = $(elem.target).attr('href'));
     }
 })();
