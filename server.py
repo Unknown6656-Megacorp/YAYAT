@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 import os; os.sep = '/'
 import os.path as osp
 import argparse
-import elevate
 
 from flask import Flask, request, send_from_directory
 
@@ -13,7 +12,6 @@ USER_DIR = osp.join(CURRENT_DIR, 'userdata')
 PROJECTS_DIR = osp.join(USER_DIR, 'projects')
 _DEBUG_ = True
 
-elevate.elevate(show_console = False)
 os.chdir(CURRENT_DIR)
 
 if not osp.isdir(USER_DIR): os.mkdir(USER_DIR)
@@ -22,7 +20,6 @@ if not osp.isdir(PROJECTS_DIR): os.mkdir(PROJECTS_DIR)
 if not osp.isfile(gitignore := osp.join(USER_DIR, '.gitignore')):
     with open(gitignore, 'w') as f:
         f.write('*')
-
 
 
 def parse_utc(utc : str) -> datetime:
@@ -41,6 +38,7 @@ app = Flask(
     static_folder = 'static',
     template_folder = 'static/templates'
 )
+sock = Sock(app)
 
 import server_api
 import server_static
