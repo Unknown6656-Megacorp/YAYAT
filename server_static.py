@@ -116,20 +116,25 @@ def route_projects_new_task(project : int):
             title = 'New Task'
         )
 
+@app.route(f'/yayat/tasks/')
 @app.route(f'/yayat/projects/<int:project>/tasks/')
-def route_projects_tasks(project : int):
+def route_projects_tasks(project : int | None = None):
     if (uname := get_logged_in_name()) is None:
         return abort(403)
-    elif (proj := Project.get_existing_project(project)) is None:
-        return abort(404)
     else:
-        return render_template(
-            'tasks.html',
-            uname = uname,
-            project = proj,
-            tasks = [t.to_jsonobj() for t in proj.get_tasks()],
-            title = f'{proj.name} | Tasks'
-        )
+        args = { 'uname' : uname }
+
+        if project is None:
+            args['title'] = 'Tasks'
+            args['tasks'] = [t for p in Project.get_existing_projects() for t in p.get_tasks()]
+        elif (proj := Project.get_existing_project(project)) is not None:
+            args['project'] = proj
+            args['title'] = f'{proj.name} | Tasks'
+            args['tasks'] = proj.get_tasks()
+        else:
+            return abort(404)
+
+        return render_template('tasks.html', **args)
 
 @app.route(f'/yayat/projects/<int:project>/tasks/<int:task>/')
 def route_projects_task_main(project : int, task : int):
@@ -197,20 +202,4 @@ def route_projects_task_edit(project : int, task : int):
             project = proj,
             task = t,
             title = f'{t.name} | Edit'
-        )
-
-@app.route(f'/yayat/tasks/')
-def route_all_tasks():
-    if (uname := get_logged_in_name()) is None:
-        return redirect('/yayat/login/', redirect = request.full_path)
-    else:
-        return render_template(
-            'tasks.html',
-            uname = uname,
-            tasks = [
-                t.to_jsonobj()
-                for p in Project.get_existing_projects()
-                for t in p.get_tasks()
-            ],
-            title = 'Tasks'
         )
