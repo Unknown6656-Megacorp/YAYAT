@@ -59,8 +59,9 @@
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript" language="javascript">
-        const project = JSON.parse(unescape_html("{{project.to_jsonobj()}}"));
-        const task = JSON.parse(unescape_html("{{task.to_jsonobj()}}"));
+        const project_id = {{project.id}};
+        const task_id = {{task.id}};
+        const base_uri = '/yayat/projects/{{project.id}}/tasks/{{task.id}}/';
     </script>
     <script type="text/javascript" language="javascript" src="/js/task-upload.js"></script>
 {% endblock %}

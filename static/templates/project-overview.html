@@ -36,12 +36,12 @@
 {% block scripts %}
     <script type="text/javascript" language="javascript" src="/js/jquery.inputmask.js"></script>
     <script type="text/javascript" language="javascript">
-        const project = JSON.parse(unescape_html("{{project.to_jsonobj()}}"));
-        const tasks = JSON.parse(unescape_html('[' + [
+        const project = {{project.to_jsonstr()|safe}};
+        const tasks = [
             // {% for task in project.get_tasks() %}
-                '{{task.to_jsonobj()}}',
+                {{task.to_slimjsonstr()|safe}},
             // {% endfor %}
-        ].join(',') + ']'));
+        ];
     </script>
     <script type="text/javascript" language="javascript" src="/js/project-overview.js"></script>
     <script type="text/javascript" language="javascript" src="/js/tasks.js"></script>

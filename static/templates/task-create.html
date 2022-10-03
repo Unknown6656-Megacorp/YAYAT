@@ -15,7 +15,7 @@
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript" language="javascript">
-        const project = JSON.parse(unescape_html("{{project.to_jsonobj()}}"));
+        const project_id = {{project.id}};
     </script>
     <script type="text/javascript" language="javascript" src="/js/task-create.js"></script>
 {% endblock %}
