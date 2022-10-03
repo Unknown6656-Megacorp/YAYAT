@@ -2,9 +2,25 @@
 {% block head %}
 {% endblock %}
 {% block content %}
-    <main>
-        <h1 data-task-id="{{task.id}}">{{task.name}}</h1>
+    <main class="text">
+        <p>
+            <button class="open" href="../">Back to task list</button>
+            <button class="open" href="../../">Back to project overview</button>
+        </p>
+        <br/>
+        <h1 class="page-heading" data-task-id="{{task.id}}" data-project-name="{{project.name}}">
+            {{task.name}}
+            <button>Edit</button>
+        </h1>
+        <p>
+            This task has been created by <b>{{task.creator}}</b> <span id="date-created"></span>.
+            The task has last been modified <span id="date-modified"></span>.
+        </p>
     </main>
 {% endblock %}
 {% block scripts %}
+    <script type="text/javascript" language="javascript">
+        const task = {{task.to_slimjsonstr()|safe}};
+    </script>
+    <script type="text/javascript" language="javascript" src="/js/task-overview.js"></script>
 {% endblock %}
