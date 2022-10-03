@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/css/task-create.css"/>
+{% endblock %}
+{% block content %}
+    <main class="text">
+        <h1>Create a new Task</h1>
+        Name of the task:
+        <input type="text" id="task-name"/>
+        <p>
+            <button id="btn-cancel">Cancel</button>
+            <button id="btn-create" class="primary right">Create Task</button>
+        </p>
+    </main>
+{% endblock %}
+{% block scripts %}
+    <script type="text/javascript" language="javascript">
+        const project = JSON.parse(unescape_html("{{project.to_jsonobj()}}"));
+    </script>
+    <script type="text/javascript" language="javascript" src="/js/task-create.js"></script>
+{% endblock %}
