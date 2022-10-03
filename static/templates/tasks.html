@@ -31,9 +31,13 @@
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript" language="javascript">
-        const tasks = JSON.parse(unescape_html('{{tasks}}'));
+        const tasks = [
+            // {% for task in tasks %}
+                {{task.to_slimjsonstr()|safe}},
+            // {% endfor %}
+        ];
         // {% if project is defined %}
-        const project = JSON.parse(unescape_html('{{project.to_jsonobj()}}'));
+        const project_id = {{project.id|safe}};
         // {% endif %}
     </script>
     <script type="text/javascript" language="javascript" src="/js/tasks.js"></script>
