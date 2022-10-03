@@ -1,14 +1,13 @@
 {% extends "layout.html" %}
 {% block head %}
-    <link rel="stylesheet" type="text/css" href="/css/new-task.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/task-upload.css"/>
 {% endblock %}
 {% block content %}
     <main class="text">
-        <h1>Create a new Task</h1>
-        Name of the task:
-        <input type="text" id="task-name"/>
+        <h1>Add/Upload Footage</h1>
         <p>
-            Footage files (<span id="files-count">0</span>):
+            Footage files to be added (<span id="files-count">0</span>) to the task
+            "<b>{{task.name}}</b>":
             <file-list></file-list>
         </p>
         Add footage:
@@ -43,6 +42,7 @@
                 <button class="primary right" id="web-submit">Submit</button>
             </tab-page>
         </tab-control>
+        <br/>
         <fieldset>
             <legend>Options:</legend>
             [TODO]
@@ -53,13 +53,14 @@
         </fieldset>
         <p>
             <button id="btn-cancel">Cancel</button>
-            <button id="btn-create" class="primary right">Create Task</button>
+            <button id="btn-upload" class="primary right">Upload Footage</button>
         </p>
     </main>
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript" language="javascript">
         const project = JSON.parse(unescape_html("{{project.to_jsonobj()}}"));
+        const task = JSON.parse(unescape_html("{{task.to_jsonobj()}}"));
     </script>
-    <script type="text/javascript" language="javascript" src="/js/new-task.js"></script>
+    <script type="text/javascript" language="javascript" src="/js/task-upload.js"></script>
 {% endblock %}

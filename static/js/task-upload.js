@@ -252,65 +252,57 @@ file_input.change(() => add_upload_files(file_input[0].files));
 
 $('#btn-create').click(() =>
 {
-    query_api_sync(`projects/${project.id}/tasks/create`, {
-        name: $('#task-name').val()
-    }, data => {
-        show_modal_notice(
-            'Task creation is in progress...',
-            `<p>
-                Please hang on while we create your task.
-                This process may take multiple minutes depending on the amount of footage added.
-            </p>
-            <p>
-                Did you know that this process is more complex than I imagined?
-                In order to create a new task, one has first to transmit all the data back to the server
-                (an absolute clusterfuck-nightmare), then the server has to create a temporary folder into which all input files are stored.
-                The server then processes each file using FFMPEG, extracting the image frames in the process.
-                Each frame is then normalized and stored into the task's newly created directory.
-                Finally, before cleaning up the created mess, a preview image has to be created for each frame in the project.
-            </p>
-            <p>
-                So yeah, that's why it's taking so long. Feel free to grab a cup of coffee...
-            </p>
-            <p>
-                Alternatively, you can stare mesmerized at the following non-descriptive progress spinner:
-            </p>
-            [TODO : add spinner]
-            `,
-            []
-        )
+    show_modal_notice(
+        'Task creation is in progress...',
+        `<p>
+            Please hang on while we create your task.
+            This process may take multiple minutes depending on the amount of footage added.
+        </p>
+        <p>
+            Did you know that this process is more complex than I imagined?
+            In order to create a new task, one has first to transmit all the data back to the server
+            (an absolute clusterfuck-nightmare involving multipart data forms), then the server has to create a temporary folder into which all input files are stored.
+            The server then processes each file using FFMPEG, extracting the image frames in the process.
+            Each frame is then normalized and stored into the task's newly created directory.
+            Finally, before cleaning up the created mess, a preview image has to be created for each frame in the project.
+        </p>
+        <p>
+            So yeah, that's why it's taking so long. Feel free to grab a cup of coffee.
+        </p>
+        <p>
+            Alternatively, you can stare mesmerized at the following non-descriptive progress spinner and enjoy the update messages delivered to you via a wonky websocket-connection:
+        </p>
+        <progress-spinner></progress-spinner>
+        <p>
+        </p>
+        `,
+        []
+    );
 
-        const form_data_final = new FormData();
+    const form_data_final = new FormData();
 
-        form_data_final.set('files', JSON.stringify(files));
-        form_data.getAll(FILE_UPLOAD_KEY)
-                 .forEach(f => form_data_final.append(f['uuid'], f));
+    form_data_final.set('files', JSON.stringify(files));
+    form_data.getAll(FILE_UPLOAD_KEY)
+             .forEach(f => form_data_final.append(f['uuid'], f));
 
-        $.ajax({
-            url: `/api/projects/${project.id}/tasks/${data.id}/upload`,
-            data: form_data_final,
-            type: 'POST',
-            dataType: 'json',
-            cache: false,
-            contentType: false,
-            processData: false,
-            success: d =>
-            {
-                hide_modal_notice();
+    $.ajax({
+        url: `/api/projects/${project.id}/tasks/${data.id}/upload`,
+        data: form_data_final,
+        type: 'POST',
+        dataType: 'json',
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: d =>
+        {
+            hide_modal_notice();
 
-                window.location.href = `/yayat/projects/${project.id}/tasks/${data.id}/`
-            },
-            error: e => show_modal_notice(
-                'An error occurred',
-                e.responseJSON?.error || e.statusText || '[Unknown Error]',
-                [['Ok', () => { }]]
-            ),
-        });
-    }, error => show_modal_notice('An error occurred', error, [['Ok', () => { }]]));
-})
-
-
-
-
-
-
+            window.location.href = `/yayat/projects/${project.id}/tasks/${data.id}/`
+        },
+        error: e => show_modal_notice(
+            'An error occurred',
+            e.responseJSON?.error || e.statusText || '[Unknown Error]',
+            [['Ok', () => { }]]
+        ),
+    });
+});
