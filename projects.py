@@ -100,7 +100,7 @@ def read_images(bytes : bytearray | None, update_message_callback : Callable[[st
     images = []
 
     if update_message_callback is not None:
-        update_message_callback('Storing to temporary folder...')
+        update_message_callback('Storing to temporary folder.')
 
     try:
         in_file = osp.join(temp.name, 'input')
@@ -109,7 +109,7 @@ def read_images(bytes : bytearray | None, update_message_callback : Callable[[st
             f.write(bytes)
 
         if update_message_callback is not None:
-            update_message_callback('Processing with FFMPEG...')
+            update_message_callback('Processing with FFMPEG. This may take REALLY long.')
 
         ffmpeg.input(in_file)\
               .output(osp.join(temp.name, 'output-%010d.png'))\
@@ -117,7 +117,7 @@ def read_images(bytes : bytearray | None, update_message_callback : Callable[[st
               .run(quiet = _DEBUG_)
 
         if update_message_callback is not None:
-            update_message_callback('Indexing resulting frames...')
+            update_message_callback('Indexing resulting frames.')
 
         out_files = [f for f in os.listdir(temp.name) if f.startswith('output-')]
         out_files.sort()
@@ -127,7 +127,7 @@ def read_images(bytes : bytearray | None, update_message_callback : Callable[[st
             if osp.isfile(file):
                 try:
                     if update_message_callback is not None:
-                        update_message_callback(f'Reading CV2 frame {index + 1}...')
+                        update_message_callback(f'Reading OpenCV2 frame {index + 1}.')
 
                     if len(image := cv2.imread(file, cv2.IMREAD_UNCHANGED)) > 0:
                         images.append(image)
@@ -353,6 +353,22 @@ class Task:
             'tracking_annotations': [a.to_jsonobj() for a in self.tracking_annotations],
         }
 
+    def to_jsonstr(self) -> str:
+        return json.dumps(self.to_jsonobj())
+
+    def to_slimjsonstr(self) -> str:
+        return json.dumps({
+            'id': self.id,
+            'name': self.name,
+            'project': self.project.id,
+            'creator': self.creator,
+            'created': print_utc(self.created),
+            'modified': print_utc(self.modified),
+            'progress': self.progress.value,
+            'frames': len(self.frames),
+            'tracking_annotations': len(self.tracking_annotations),
+        })
+
     def read_json(self) -> None:
         with open(self.task_file, 'r') as f:
             jsonobj = json.load(f)
@@ -390,7 +406,7 @@ class Task:
 
         for image, name, origin in images:
             id += 1
-            local_name = f'{id:010}-{hex(binascii.crc32(name.encode("utf-8")) & 0xffffffff)}.png'
+            local_name = f'{id:010}.png'
             local_path = osp.join(self.image_directory, local_name)
             image = normalize_frame_image(image)
 
@@ -488,6 +504,9 @@ class Project:
             'labels': [l.to_jsonobj() for l in self.labels],
             'tasks': self.tasks,
         }
+
+    def to_jsonstr(self) -> str:
+        return json.dumps(self.to_jsonobj())
 
     def read_json(self) -> None:
         with open(self.project_file, 'r') as f:
