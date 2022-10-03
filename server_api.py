@@ -322,8 +322,10 @@ def api_all_tasks(args : dict, uname : str):
 def api_projects_tasks_create(args : dict, uname : str, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
-    elif (name := args.get('name')) is None:
+    elif (name := args.get('name', None)) is None:
         return json_error('No name has been provided for the task.')
+    elif len(name.strip()) < 1:
+        return json_error('The task\'s name must not be empty or only consisting of whitespaces.')
     elif any(t for t in proj.get_tasks() if t.name == name):
         return json_error(f'A task with the name "{name}" does already exist.')
     else:

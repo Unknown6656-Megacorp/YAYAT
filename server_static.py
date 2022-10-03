@@ -110,7 +110,7 @@ def route_projects_new_task(project : int):
         return abort(404)
     else:
         return render_template(
-            'new-task.html',
+            'task-create.html',
             uname = uname,
             project = proj,
             title = 'New Task'
@@ -142,6 +142,23 @@ def route_projects_task_main(project : int, task : int):
     else:
         return render_template(
             'task-main.html',
+            uname = uname,
+            project = proj,
+            task = t,
+            title = f'{t.name}'
+        )
+
+@app.route(f'/yayat/projects/<int:project>/tasks/<int:task>/upload')
+def route_projects_task_upload(project : int, task : int):
+    if (uname := get_logged_in_name()) is None:
+        return abort(403)
+    elif (proj := Project.get_existing_project(project)) is None:
+        return abort(404)
+    elif (t := proj.get_task(task)) is None:
+        return abort(404)
+    else:
+        return render_template(
+            'task-upload.html',
             uname = uname,
             project = proj,
             task = t,

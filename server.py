@@ -38,7 +38,6 @@ app = Flask(
     static_folder = 'static',
     template_folder = 'static/templates'
 )
-sock = Sock(app)
 
 import server_api
 import server_static
