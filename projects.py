@@ -90,12 +90,15 @@ def create_frame_preview(image : np.ndarray) -> np.ndarray:
 
     return preview
 
-def read_images(bytes : bytearray | None) -> list[np.ndarray]:
+def read_images(bytes : bytearray | None, update_message_callback : Callable[[str], None] | None) -> list[np.ndarray]:
     if bytes is None or len(bytes) < 5:
         return []
 
     temp = tempfile.TemporaryDirectory()
     images = []
+
+    if update_message_callback is not None:
+        update_message_callback('Storing to temporary folder...')
 
     try:
         in_file = osp.join(temp.name, 'input')
@@ -103,18 +106,27 @@ def read_images(bytes : bytearray | None) -> list[np.ndarray]:
         with open(in_file, 'wb') as f:
             f.write(bytes)
 
+        if update_message_callback is not None:
+            update_message_callback('Processing with FFMPEG...')
+
         ffmpeg.input(in_file)\
               .output(osp.join(temp.name, 'output-%010d.png'))\
               .overwrite_output()\
               .run(quiet = _DEBUG_)
 
+        if update_message_callback is not None:
+            update_message_callback('Indexing resulting frames...')
+
         out_files = [f for f in os.listdir(temp.name) if f.startswith('output-')]
         out_files.sort()
 
-        for file in out_files:
+        for index, file in enumerate(out_files):
             file = osp.join(temp.name, file)
             if osp.isfile(file):
                 try:
+                    if update_message_callback is not None:
+                        update_message_callback(f'Reading CV2 frame {index + 1}...')
+
                     if len(image := cv2.imread(file, cv2.IMREAD_UNCHANGED)) > 0:
                         images.append(image)
                 except:
@@ -435,7 +447,6 @@ class Task:
             pass
 
         return None
-
 
 
 class Project:
