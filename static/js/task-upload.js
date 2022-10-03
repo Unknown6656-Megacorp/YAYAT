@@ -249,8 +249,8 @@ file_drop_area.click(() => file_input.click());
 file_input.change(() => add_upload_files(file_input[0].files));
 
 
-
-$('#btn-create').click(() =>
+$('#btn-cancel').click(() => window.location.href = base_uri);
+$('#btn-upload').click(() =>
 {
     show_modal_notice(
         'Task creation is in progress...',
@@ -273,12 +273,19 @@ $('#btn-create').click(() =>
             Alternatively, you can stare mesmerized at the following non-descriptive progress spinner and enjoy the update messages delivered to you via a wonky websocket-connection:
         </p>
         <progress-spinner></progress-spinner>
-        <p>
+        <p id="progress-updates">
         </p>
         `,
         []
     );
 
+    let timer = setInterval(() => query_api_sync(`projects/${project_id}/tasks/${task_id}/upload/progress`, { },
+        data =>
+        {
+            $('#progress-updates').text(data.at(-1));
+        },
+        error => clearInterval(timer)
+    ), 500);
     const form_data_final = new FormData();
 
     form_data_final.set('files', JSON.stringify(files));
@@ -286,7 +293,7 @@ $('#btn-create').click(() =>
              .forEach(f => form_data_final.append(f['uuid'], f));
 
     $.ajax({
-        url: `/api/projects/${project.id}/tasks/${data.id}/upload`,
+        url: `/api/projects/${project_id}/tasks/${task_id}/upload`,
         data: form_data_final,
         type: 'POST',
         dataType: 'json',
@@ -295,14 +302,19 @@ $('#btn-create').click(() =>
         processData: false,
         success: d =>
         {
+            clearInterval(timer);
             hide_modal_notice();
 
-            window.location.href = `/yayat/projects/${project.id}/tasks/${data.id}/`
+            window.location.href = base_uri;
         },
-        error: e => show_modal_notice(
-            'An error occurred',
-            e.responseJSON?.error || e.statusText || '[Unknown Error]',
-            [['Ok', () => { }]]
-        ),
+        error: e =>
+        {
+            clearInterval(timer);
+            show_modal_notice(
+                'An error occurred',
+                e.responseJSON?.error || e.statusText || '[Unknown Error]',
+                [['Ok', () => { }]]
+            );
+        },
     });
 });

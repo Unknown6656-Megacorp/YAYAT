@@ -390,7 +390,7 @@ def api_projects_tasks_upload(args : dict, uname : str, project : int, task : in
             try:
                 bytes = None
 
-                add_task_upload_update(project, task, f'Reading bytes from "{file["file"]}" ...')
+                add_task_upload_update(project, task, f'Reading bytes from "{file["file"]}".')
 
                 match origin := FrameOrigin(file['type']):
                     case FrameOrigin.SERVER:
@@ -407,7 +407,7 @@ def api_projects_tasks_upload(args : dict, uname : str, project : int, task : in
                         bytes,
                         lambda msg: add_task_upload_update(project, task, f'Extracting frames from "{file["file"]}": {msg}')
                     )):
-                    add_task_upload_update(project, task, f'Creating frame {framenum + 1} from "{file["file"]}" ...')
+                    add_task_upload_update(project, task, f'Creating frame {framenum + 1} from "{file["file"]}".')
 
                     frame = t.add_frame(image, file['file'], origin)
 
