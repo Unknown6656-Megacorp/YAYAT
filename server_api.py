@@ -34,10 +34,24 @@ USERS = { }
 COOKIE_API_TOKEN = '__cookie_api_token'
 COOKIE_USER_NAME = '__cookie_api_uname'
 
+task_upload_updates : dict[tuple[int, int], list[str]] = { }
+task_download_updates : dict[tuple[int, int], list[str]] = { }
+
 
 def sha512(string : str) -> str: return hashlib.sha512(string.encode('utf-8')).hexdigest()
 
 def compute_hash(uname : str, passwd : str) -> str: return sha512(sha512(uname + passwd) + uname)
+
+def add_task_upload_update(project : int, task : int, message : str) -> None:
+    updates = task_upload_updates.get((project, task), [])
+    updates.append(message) # TODO : add timestamp
+    task_upload_updates[(project, task)] = updates
+
+def add_task_download_update(project : int, task : int, message : str) -> None:
+    updates = task_download_updates.get((project, task), [])
+    updates.append(message) # TODO : add timestamp
+    task_download_updates[(project, task)] = updates
+
 
 
 if osp.isfile(osp.join(USER_DIR, USER_FILE)):
@@ -368,9 +382,13 @@ def api_projects_tasks_upload(args : dict, uname : str, project : int, task : in
         except Exception as e:
             return json_error(f'Invalid form submission data: {e}')
 
+        task_upload_updates[(project, task)] = []
+
         for file in files:
             try:
                 bytes = None
+
+                add_task_upload_update(project, task, f'Reading bytes from "{file["file"]}" ...')
 
                 match origin := FrameOrigin(file['type']):
                     case FrameOrigin.SERVER:
@@ -383,7 +401,12 @@ def api_projects_tasks_upload(args : dict, uname : str, project : int, task : in
                         req = urllib.request.urlopen(file['file'])
                         bytes = bytearray(req.read())
 
-                for image in read_images(bytes):
+                for framenum, image in enumerate(read_images(
+                        bytes,
+                        lambda msg: add_task_upload_update(project, task, f'Extracting frames from "{file["file"]}": {msg}')
+                    )):
+                    add_task_upload_update(project, task, f'Creating frame {framenum + 1} from "{file["file"]}" ...')
+
                     frame = t.add_frame(image, file['file'], origin)
 
                     if frame.deleted:
@@ -392,12 +415,16 @@ def api_projects_tasks_upload(args : dict, uname : str, project : int, task : in
                         frames.append(frame)
             except Exception as e:
                 pass # TODO
+
+        with open(t.upload_file, 'w') as f:
+            f.writelines(task_upload_updates[(project, task)])
+
         return json_ok([f.to_jsonobj() for f in frames])
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/upload/progress')
 def api_projects_tasks_upload_progress(args : dict, uname : str, project : int, task : int):
-    pass
+    return json_ok(task_upload_updates.get((project, task), []))
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/download')
@@ -407,7 +434,7 @@ def api_projects_tasks_download(args : dict, uname : str, project : int, task : 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/download/progress')
 def api_projects_tasks_download_progress(args : dict, uname : str, project : int, task : int):
-    pass # TODO
+    return json_ok(task_download_updates.get((project, task), []))
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>')
