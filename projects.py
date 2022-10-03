@@ -16,6 +16,8 @@ from __main__ import print_utc, parse_utc, PROJECTS_DIR, _DEBUG_
 
 PROJECTS_DIR : str
 PROJECT_FILE = 'project.json'
+DOWNLOAD_FILE = 'download.log'
+UPLOAD_FILE = 'upload.log'
 TASK_FILE = 'task.json'
 
 PREVIEW_SIZE : int = 200
@@ -323,6 +325,8 @@ class Task:
         self.directory = osp.join(project.directory, str(id))
         self.image_directory = osp.join(self.directory, 'images')
         self.preview_directory = osp.join(self.directory, 'previews')
+        self.download_file = osp.join(self.directory, DOWNLOAD_FILE)
+        self.upload_file = osp.join(self.directory, UPLOAD_FILE)
         self.task_file = osp.join(self.directory, TASK_FILE)
 
         for dir in [self.directory, self.image_directory, self.preview_directory]:
