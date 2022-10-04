@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="/css/task-annotate.css"/>
+{% endblock %}
+{% block content %}
+    <annotation-container>
+        <timeline-controls>
+            [TODO : timeline controls]
+        </timeline-controls>
+        <annotation-canvas>
+            [TODO : image and image controls]
+        </annotation-canvas>
+        <annotation-controls>
+            <button>new shape</button>
+            <button>new track</button>
+            <button>reset zoom</button>
+            <button>zoom into region</button>
+            <button>....</button>
+        </annotation-controls>
+        <annotation-list>
+            [TODO : list of current annotations]
+        </annotation-list>
+    </annotation-container>
+{% endblock %}
+{% block scripts %}
+    <script type="text/javascript" language="javascript">
+        const task = {{task.to_jsonstr()|safe}};
+    </script>
+    <script type="text/javascript" language="javascript" src="/js/task-annotate.js"></script>
+{% endblock %}

@@ -1,0 +1,40 @@
+@charset "utf-8";
+
+
+annotation-container {
+    --side-bar-width: 250px;
+    --top-bar-height: 50px;
+
+    grid-template-columns: auto var(--side-bar-width);
+    grid-template-rows: var(--top-bar-height) auto 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    height: 100%;
+    width: 100%;
+
+    display: grid;
+}
+
+timeline-controls {
+    grid-area: 1 / 1 / 2 / 3;
+    border-bottom: 1px solid var(--color-foreground);
+    background: var(--color-element);
+}
+
+annotation-canvas {
+    grid-area: 2 / 1 / 4 / 2;
+    background-image: var(--image-hatched-bg);
+}
+
+annotation-controls {
+    grid-area: 2 / 2 / 3 / 3;
+    border-bottom: 1px solid var(--color-foreground);
+    border-left: 1px solid var(--color-foreground);
+    background: var(--color-element);
+}
+
+annotation-list {
+    grid-area: 3 / 2 / 4 / 3;
+    border-left: 1px solid var(--color-foreground);
+    background: var(--color-background);
+}
