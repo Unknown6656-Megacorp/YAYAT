@@ -10,7 +10,7 @@ import io
 import os
 import os.path as osp
 
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, send_file, send_from_directory, Response
 from __main__ import app, print_utcnow, print_utc, parse_utc, utc_from_unix, USER_DIR, _DEBUG_
 from projects import *
 
@@ -437,6 +437,57 @@ def api_projects_tasks_download(args : dict, uname : str, project : int, task : 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/download/progress')
 def api_projects_tasks_download_progress(args : dict, uname : str, project : int, task : int):
     return json_ok(task_download_updates.get((project, task), []))
+
+
+@secure_api('/api/img/<int:project>/<int:task>/<int:frame>')
+def api_img(args : dict, uname : str, project : int, task : int, frame : int):
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    elif (t := proj.get_task(task)) is None:
+        return json_error(f'Invalid task id "{task}" in project "{project}".')
+    elif (f := t.get_frame(frame)) is None:
+        return json_error(f'Invalid frame id "{frame}" in project "{project}", task "{task}".')
+    else:
+        return send_file(t.get_image_path(f))
+
+
+@secure_api('/api/img/<int:project>/<int:task>/<int:frame>/preview')
+def api_img_preview(args : dict, uname : str, project : int, task : int, frame : int):
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    elif (t := proj.get_task(task)) is None:
+        return json_error(f'Invalid task id "{task}" in project "{project}".')
+    elif (f := t.get_frame(frame)) is None:
+        return json_error(f'Invalid frame id "{frame}" in project "{project}", task "{task}".')
+    else:
+        return send_file(t.get_preview_path(f))
+
+
+@secure_api('/api/img/<int:project>/<int:task>/preview')
+def api_img_task_preview(args : dict, uname : str, project : int, task : int):
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    elif (t := proj.get_task(task)) is None:
+        return json_error(f'Invalid task id "{task}" in project "{project}".')
+    elif len(t.frames) > 0:
+        return send_file(t.get_preview_path(t.frames[0]))
+    else:
+        return json_error(f'Task "{task}" has no frame.')
+
+
+@secure_api('/api/img/<int:project>/preview')
+def api_img_project_preview(args : dict, uname : str, project : int):
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    elif len(proj.tasks) == 0:
+        return json_error(f'Project "{project}" has no tasks.')
+    else:
+        task = proj.get_task(proj.tasks[0])
+
+        if len(task.frames) > 0:
+            return send_file(task.get_preview_path(task.frames[0]))
+        else:
+            return json_error(f'Task "{task}" has no frame.')
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>')
