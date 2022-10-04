@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Iterable, TypeVar
-import binascii
 import tempfile
 import shutil
 import os.path as osp
@@ -63,11 +62,15 @@ def normalize_frame_image(image : np.ndarray) -> np.ndarray | None:
 
         if image.shape[2] == 1:
             return normalize_frame_image(np.repeat(image, 3, 2))
-        elif image.shape[2] != 4:
-            image = np.resize(image, (image.shape[0], image.shape[1], 4))
-
-            if image.shape[2] < 4:
-                image[:, :, 3] = 1.0
+        elif image.shape[2] > 4:
+            return normalize_frame_image(image[:, :, :4])
+        elif image.shape[2] < 4:
+            image = np.concatenate((
+                image,
+                np.zeros((image.shape[0], image.shape[1], 3 - image.shape[2])),
+                np.ones((image.shape[0], image.shape[1], 1))),
+                axis = 2
+            )
 
             return normalize_frame_image(image)
         else:
@@ -127,7 +130,7 @@ def read_images(bytes : bytearray | None, update_message_callback : Callable[[st
             if osp.isfile(file):
                 try:
                     if update_message_callback is not None:
-                        update_message_callback(f'Reading OpenCV2 frame {index + 1}.')
+                        update_message_callback(f'Reading OpenCV2 frame {index + 1} / {len(out_files)} (~ {(index + 1) * 100.0 / len(out_files):.2f} %).')
 
                     if len(image := cv2.imread(file, cv2.IMREAD_UNCHANGED)) > 0:
                         images.append(image)
@@ -444,9 +447,22 @@ class Task:
             if osp.exists(path):
                 os.remove(path)
 
+    def get_frame(self, frame : int) -> Frame | None:
+        for f in self.frames:
+            if f.id == frame:
+                return f
+
+        return None
+
+    def get_image_path(self, frame : Frame) -> str:
+        return osp.join(self.image_directory, frame.local_image_filename)
+
+    def get_preview_path(self, frame : Frame) -> str:
+        return osp.join(self.preview_directory, frame.local_image_filename)
+
     def get_image(self, frame : Frame) -> np.ndarray | None:
         try:
-            path = osp.join(self.image_directory, frame.local_image_filename)
+            path = self.get_image_path(frame)
             image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
 
             if len(image) > 0:
@@ -458,7 +474,7 @@ class Task:
 
     def get_preview(self, frame : Frame) -> np.ndarray | None:
         try:
-            path = osp.join(self.preview_directory, frame.local_image_filename)
+            path = self.get_preview_path(frame)
             image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
 
             if len(image) > 0:
