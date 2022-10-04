@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 {% block head %}
+    <link rel="stylesheet" type="text/css" href="/css/task-overview.css"/>
 {% endblock %}
 {% block content %}
     <main class="text">
@@ -16,11 +17,24 @@
             This task has been created by <b>{{task.creator}}</b> <span id="date-created"></span>.
             The task has last been modified <span id="date-modified"></span>.
         </p>
+        <fieldset>
+            <legend>Current progress</legend>
+            [TODO : progress bar]
+        </fieldset>
+        <br/>
+        <fieldset>
+            <legend>Footage</legend>
+            <span>
+                {{task.frames|length}} frame(s):
+                <button class="primary right open" href="./upload">Add/upload new footage</button>
+            </span>
+            <frame-list></frame-list>
+        </fieldset>
     </main>
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript" language="javascript">
-        const task = {{task.to_slimjsonstr()|safe}};
+        const task = {{task.to_jsonstr()|safe}};
     </script>
     <script type="text/javascript" language="javascript" src="/js/task-overview.js"></script>
 {% endblock %}
