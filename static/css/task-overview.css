@@ -1,0 +1,94 @@
+@charset "utf-8";
+
+
+frame-list {
+    overflow-y: scroll;
+    min-height: 200px;
+    padding: 5px 0px;
+    flex-wrap: wrap;
+    display: flex;
+    width: 100%;
+}
+
+frame-card {
+    border: 1px solid var(--color-foreground);
+    background-color: var(--color-element);
+    border-radius: var(--border-radius);
+    flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    width: 120px;
+    height: 100px;
+    margin: 4px;
+}
+
+frame-card[annotated]::after {
+    background-color: var(--color-accent);
+    background-image: url(/img/icon-check.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 50%;
+    position: absolute;
+    display: block;
+    content: '';
+    width: 25px;
+    height: 25px;
+    bottom: 5px;
+    right: 5px;
+} 
+
+frame-card[deleted] {
+    filter: grayscale();
+    opacity: .5;
+}
+
+frame-card frame-text {
+    background-position: right center;
+    background-repeat: no-repeat;
+    background-size: auto 80%;
+    background-color: var(--color-inline-code);
+    border-bottom: 1px solid var(--color-foreground);
+    box-sizing: border-box;
+    font-weight: bold;
+    padding: 2px 5px;
+    display: block;
+    width: 100%;
+}
+
+frame-card[data-source="s"] frame-text {
+    background-image: url('/img/icon-server.svg');
+}
+
+frame-card[data-source="u"] frame-text {
+    background-image: url('/img/icon-upload.svg');
+}
+
+frame-card[data-source="w"] frame-text {
+    background-image: url('/img/icon-web.svg');
+}
+
+frame-image {
+    background-image: var(--image-preview), var(--image-hatched-bg);
+    background-position: center, 0;
+    background-repeat: no-repeat;
+    background-size: cover, auto;
+    display: block;
+    flex: 1;
+}
+
+frame-card[deleted] frame-image::after {
+    background-image: url('/img/icon-delete.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: auto 80%;
+    display: block;
+    content: '';
+    height: 100%;
+    width: 100%;
+}
+
+
+
