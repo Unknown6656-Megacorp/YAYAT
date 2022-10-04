@@ -75,13 +75,7 @@ file-list file-element button.file-remove {
 file-drop-area {
     border:  1px solid var(--color-foreground);
     border-radius: var(--border-radius);
-    background: repeating-linear-gradient(
-        135deg,
-        transparent,
-        transparent 5px,
-        var(--color-element) 5px,
-        var(--color-element) 10px
-    );
+    background: var(--image-hatched-bg);
     color: var(--color-inline-code);
     font-size: 1.5em;
     margin: 10px 0px;

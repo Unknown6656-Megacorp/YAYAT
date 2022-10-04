@@ -14,6 +14,13 @@
     --color-element: #fff;
     --color-toolbars: #ddd;
     --color-inline-code: #bbb;
+    --image-hatched-bg: repeating-linear-gradient(
+        135deg,
+        #999,
+        #999 5px,
+        var(--color-inline-code) 5px,
+        var(--color-inline-code) 10px
+    );
 
     --header-height: 50px;
     --footer-height: 30px;

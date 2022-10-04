@@ -43,13 +43,10 @@ project-card.error {
 
 task-preview,
 project-preview {
-    background: repeating-linear-gradient(
-        135deg,
-        #999,
-        #999 5px,
-        #bbb 5px,
-        #bbb 10px
-    );
+    background-image: var(--image-preview), var(--image-hatched-bg);
+    background-position: center, 0;
+    background-repeat: no-repeat;
+    background-size: cover, auto;
     border-bottom-left-radius: calc(var(--border-radius) - 1px);
     border-top-left-radius: calc(var(--border-radius) - 1px);
     border-right: 1px solid var(--color-foreground);
