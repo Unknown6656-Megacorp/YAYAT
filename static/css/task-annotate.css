@@ -44,11 +44,11 @@ icon-button[icon="first-frame"] {
 }
 
 icon-button[icon="prev-frame"] {
-    background-image: url('/img/icon-skip-backward.svg');
+    background-image: url('/img/icon-previous-frame.svg');
 }
 
 icon-button[icon="next-frame"] {
-    background-image: url('/img/icon-skip-forward.svg');
+    background-image: url('/img/icon-next-frame.svg');
 }
 
 icon-button[icon="last-frame"] {
