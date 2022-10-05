@@ -6,24 +6,29 @@
     <annotation-container>
         <timeline-controls>
             <icon-button icon="first-frame" id="btn-first-frame"></icon-button>
-            <icon-button icon="prev-frame" id="btn-prev-frame"></icon-button>
             <icon-button icon="play-backward" id="btn-play-backward"></icon-button>
-            <icon-button icon="play-forward" id="btn-play-forward"></icon-button>
+            <icon-button icon="prev-frame" id="btn-prev-frame"></icon-button>
             <icon-button icon="next-frame" id="btn-next-frame"></icon-button>
+            <icon-button icon="play-forward" id="btn-play-forward"></icon-button>
             <icon-button icon="last-frame" id="btn-last-frame"></icon-button>
-
-            [TODO : slider]
-
-            <input class="frame-number" type="number" id="tb-curr-frame"/> /
-            <span id="tb-total-frames"></span>
+            <div class="padding"></div>
+            <input id="frame-slider" type="range" value="1" min="1" max="{{task.frames|length}}"/>
+            <input id="frame-number" type="number" id="tb-curr-frame" value="1" min="1" max="{{task.frames|length}}"/> &nbsp; / {{task.frames|length}}
+            <div class="padding"></div>
         </timeline-controls>
         <timeline-info>
             <span id="frame-resolution"></span>,
             <span id="frame-internal-name"></span>
-            (<span id="frame-orig-name"></span>)
+            <div class="padding"></div>
+            (<span id="frame-source" data-source="?"></span>
+            <span id="frame-original-name"></span>)
         </timeline-info>
         <annotation-canvas>
-            [TODO : image and image controls]
+            <svg>
+                <g id="svg-cursor"></g>
+                <g id="svg-annotations"></g>
+                <image id="svg-image"/>
+            </svg>
         </annotation-canvas>
         <annotation-controls>
             <button>new shape</button>
