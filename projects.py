@@ -284,11 +284,15 @@ class Frame:
     original_image_filename : str
     original_image_source : FrameOrigin
     explicit_annotations : list[ExplicitAnnotation]
+    width : int
+    height : int
     deleted : bool
 
     def to_jsonobj(self) -> dict[str, Any]:
         return {
             'id': self.id,
+            'width' : self.width,
+            'height' : self.height,
             'local_image_filename': self.local_image_filename,
             'original_image_filename': self.original_image_filename,
             'original_image_source' : self.original_image_source.value,
@@ -300,6 +304,8 @@ class Frame:
     def from_jsonobj(jsonobj : dict[str, Any]) -> 'Frame':
         return Frame(
             id = int(jsonobj['id']),
+            width = int(jsonobj['width']),
+            height = int(jsonobj['height']),
             local_image_filename = jsonobj['local_image_filename'],
             original_image_filename = jsonobj['original_image_filename'],
             original_image_source = FrameOrigin(jsonobj['original_image_source']),
@@ -414,13 +420,17 @@ class Task:
             image = normalize_frame_image(image)
 
             if image is not None:
+                height, width = image.shape[:2]
                 preview = create_frame_preview(image)
                 preview_path = osp.join(self.preview_directory, local_name)
 
                 cv2.imwrite(local_path, image)
                 cv2.imwrite(preview_path, preview)
+            else:
+                width = 0
+                height = 0
 
-            frame = Frame(id, local_name, name, origin, [], image is None)
+            frame = Frame(id, local_name, name, origin, [], image is None, width, height)
             frames.append(frame)
 
         self.frames += frames
