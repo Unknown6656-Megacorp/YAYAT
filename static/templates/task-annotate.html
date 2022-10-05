@@ -17,14 +17,14 @@
             <div class="padding"></div>
         </timeline-controls>
         <timeline-info>
-            <span id="frame-resolution"></span>,
-            <span id="frame-internal-name"></span>
+            <span id="frame-resolution"></span> pixels
             <div class="padding"></div>
             (<span id="frame-source" data-source="?"></span>
-            <span id="frame-original-name"></span>)
+            "<span id="frame-original-name"></span>",
+            internally: "<span id="frame-internal-name"></span>")
         </timeline-info>
         <annotation-canvas>
-            <svg>
+            <svg id="svg-root">
                 <g id="svg-cursor"></g>
                 <g id="svg-annotations"></g>
                 <image id="svg-image"/>
