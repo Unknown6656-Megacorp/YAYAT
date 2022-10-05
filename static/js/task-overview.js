@@ -25,5 +25,5 @@ $('frame-list').html(html);
 $('frame-card').click(e => {
     const frame_id = $(e.target).attr('data-frame-id');
 
-    window.location.href = `./annotate?frame=${frame_id}`
+    window.location.href = `./annotate#${frame_id}`
 });

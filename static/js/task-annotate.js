@@ -27,17 +27,23 @@ function goto_frame(frame_number)
     }
 
     $('#svg-annotations').html(svg);
-    $('#svg-image').attr('href', `/api/img/${task.project}/${task.id}/${frame.id}`)
-
-    current_frame = frame_number;
-
-    $('#frame-resolution').text(`${NaN} x ${NaN}`);
+    $('#svg-root').attr('viewBox', `0 0 ${frame.width} ${frame.height}`);
+    $('#svg-image').attr('href', `/api/img/${task.project}/${task.id}/${frame.id}`);
+    $('#frame-resolution').text(`${frame.width} x ${frame.height} `);
     $('#frame-source').attr('data-source', frame.original_image_source);
     $('#frame-internal-name').text(frame.local_image_filename);
     $('#frame-original-name').text(frame.original_image_filename);
     $('#frame-slider, #frame-number').val(frame_number + 1);
+
+    window.history.replaceState(null, null, `#${frame_number + 1}`);
+    current_frame = frame_number;
 }
 
+
+const hash = parseInt(window.location.hash.slice(1));
+
+if (hash > 0 && hash <= task.frames.length)
+    goto_frame(hash - 1);
 
 
 
