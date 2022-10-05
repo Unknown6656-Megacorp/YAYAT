@@ -42,5 +42,5 @@ for (const task of tasks)
 
 $('task-list').html(html);
 $('#task-count').text(tasks.length);
-$('#new-task').click(() => window.location.href = `/yayat/projects/${project__id}/new-task/`);
+$('#new-task').click(() => window.location.href = `/yayat/projects/${project.id}/new-task/`);
 $('task-preview, task-actions button[href]').click(elem => window.location.href = $(elem.target).attr('href'));
