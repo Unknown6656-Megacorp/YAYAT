@@ -495,16 +495,6 @@ def api_projects_tasks_frames_info(args : dict, uname : str, project : int, task
     pass # TODO
 
 
-@secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>/image')
-def api_projects_tasks_frames_image(args : dict, uname : str, project : int, task : int, frame : int):
-    pass # TODO
-
-
-@secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>/change_image')
-def api_projects_tasks_frames_change_image(args : dict, uname : str, project : int, task : int, frame : int):
-    pass # TODO
-
-
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>/change_annotations')
 def api_projects_tasks_frames_change_annotations(args : dict, uname : str, project : int, task : int, frame : int):
     pass # TODO
