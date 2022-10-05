@@ -424,13 +424,18 @@ class Task:
                 preview = create_frame_preview(image)
                 preview_path = osp.join(self.preview_directory, local_name)
 
+                if osp.exists(local_path):
+                    os.remove(local_path)
+                if osp.exists(preview_path):
+                    os.remove(preview_path)
+
                 cv2.imwrite(local_path, image)
                 cv2.imwrite(preview_path, preview)
             else:
                 width = 0
                 height = 0
 
-            frame = Frame(id, local_name, name, origin, [], image is None, width, height)
+            frame = Frame(id, local_name, name, origin, [], width, height, image is None)
             frames.append(frame)
 
         self.frames += frames

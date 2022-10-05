@@ -403,11 +403,19 @@ def api_projects_tasks_upload(args : dict, uname : str, project : int, task : in
                         req = urllib.request.urlopen(file['file'])
                         bytes = bytearray(req.read())
 
-                for framenum, image in enumerate(read_images(
-                        bytes,
-                        lambda msg: add_task_upload_update(project, task, f'Extracting frames from "{file["file"]}": {msg}')
-                    )):
-                    add_task_upload_update(project, task, f'Creating frame {framenum + 1} from "{file["file"]}".')
+                # TODO : handle directories
+
+                images = read_images(
+                    bytes,
+                    lambda msg: add_task_upload_update(project, task, f'Extracting frames from "{file["file"]}": {msg}')
+                )
+
+                for framenum, image in enumerate(images):
+                    add_task_upload_update(
+                        project,
+                        task,
+                        f'Creating frame {framenum + 1}/{len(images)} from "{file["file"]}".' if len(images) > 1 else f'Creating frame for "{file["file"]}".'
+                    )
 
                     frame = t.add_frame(image, file['file'], origin)
 
