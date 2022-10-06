@@ -250,6 +250,10 @@ modal-form #modal-text {
     flex: 1;
 }
 
+modal-form button[id|="modal-button"] {
+    margin-right: 5px;
+    min-width: 100px;
+}
 
 progress-spinner {
     border: 10px solid transparent;

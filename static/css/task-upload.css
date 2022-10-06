@@ -76,7 +76,7 @@ file-drop-area {
     border:  1px solid var(--color-foreground);
     border-radius: var(--border-radius);
     background: var(--image-hatched-bg);
-    color: var(--color-inline-code);
+    /* color: var(--color-inline-code); */
     font-size: 1.5em;
     margin: 10px 0px;
     height: 70px;
