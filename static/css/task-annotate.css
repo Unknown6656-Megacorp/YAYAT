@@ -129,8 +129,9 @@ timeline-info {
 }
 
 annotation-canvas {
-    grid-area: 3 / 1 / 5 / 2;
     background-image: var(--image-hatched-bg);
+    grid-area: 3 / 1 / 5 / 2;
+    display: flex;
 }
 
 annotation-controls {
