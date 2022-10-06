@@ -174,6 +174,7 @@ server_go.click(() =>
                     </tr>
                 `;
 
+            $('server-navigator progress-spinner').remove();
             $('#server-file-list').html(html);
             $('#server-file-list').scrollTop(0);
             $('#server-file-list tr[data-type="d"] td.file-name').click(e =>
@@ -187,9 +188,27 @@ server_go.click(() =>
                 const checkbox = $(e.target);
                 const checked = checkbox.is(':checked')
                 const path = checkbox.parents('tr').attr('data-path');
+                const is_dir = checkbox.parents('tr').attr('data-type') == 'd';
 
                 if (checked)
-                    add_file(path, FILE_TYPE.SERVER);
+                {
+                    if (is_dir)
+                        show_modal_notice(
+                            'Do you want to add the entire directory?',
+                            `<p>
+                                You are about to add an entire directory to the file upload list.
+                                This results in every file inside the directory to be processed.
+                                This may take a VERY long time. Are you sure that you want to proceed?
+                            </p>
+                            The directory in question is <b>${path}</b>.
+                            `, [
+                                ['Yes', () => add_file(path, FILE_TYPE.SERVER)],
+                                ['No', () => checkbox.prop('checked', false)]
+                            ]
+                        );
+                    else
+                        add_file(path, FILE_TYPE.SERVER);
+                }
                 else
                     remove_file(path, FILE_TYPE.SERVER);
             });
