@@ -390,20 +390,28 @@ def api_projects_tasks_upload(args : dict, uname : str, project : int, task : in
             try:
                 bytes = None
 
-                add_task_upload_update(project, task, f'Reading bytes from "{file["file"]}".')
+                add_task_upload_update(project, task, f'Reading data from "{file["file"]}".')
 
                 match origin := FrameOrigin(file['type']):
                     case FrameOrigin.SERVER:
-                        with open(file['file'], 'rb') as f:
-                            bytes = bytearray(f.read())
+                        if osp.isfile(file['file']):
+                            with open(file['file'], 'rb') as f:
+                                bytes = bytearray(f.read())
+                        elif osp.isdir(file['file']):
+                            add_task_upload_update(project, task, f'Enumerating directory "{file["file"]}".')
+
+                            for subfile in os.listdir(file['file']):
+                                files.append({
+                                    'file': osp.join(file['file'], subfile),
+                                    'type': FrameOrigin.SERVER.value,
+                                    'uuid': '00000000-0000-0000-0000-000000000000',
+                                })
                     case FrameOrigin.UPLOAD:
                         if (file_obj := request.files.get(file['uuid'], None)) is not None:
                             bytes = bytearray(file_obj.stream.read())
                     case FrameOrigin.WEBURL:
                         req = urllib.request.urlopen(file['file'])
                         bytes = bytearray(req.read())
-
-                # TODO : handle directories
 
                 images = read_images(
                     bytes,
