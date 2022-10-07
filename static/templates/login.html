@@ -8,13 +8,10 @@
         <p>
             Welcome to YAYAT, a light-weight YOLO annotation tool based on python/flask.
         </p>
-        <p>
-            [TODO]
-        </p>
+        [TODO]
         <p>
             In order to use YAYAT, please login below.
         </p>
-        <br/>
         <br/>
         <form id="login-form">
             <login-page>
@@ -29,24 +26,21 @@
         </form>
         <br/>
         <br/>
-        <br/>
         <h3>
             Forgot your credentials?
         </h3>
-        <p>
-            You can reset your password as follows:
-            <ol>
-                <li>
-                    Shut down the YAYAT window by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>.
-                </li>
-                <li>
-                    Edit the file <code>{{ userfile }}</code> and provide a new username/password.
-                </li>
-                <li>
-                    Restart the server by running <code>python3 "{{mainfile}}"</code>.
-                </li>
-            </ol>
-        </p>
+        You can reset your password as follows:
+        <ol>
+            <li>
+                Shut down the YAYAT window by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>.
+            </li>
+            <li>
+                Edit the file <code>{{ userfile }}</code> and provide a new username/password.
+            </li>
+            <li>
+                Restart the server by running <code>python3 "{{mainfile}}"</code>.
+            </li>
+        </ol>
     </main>
 {% endblock %}
 {% block scripts %}
