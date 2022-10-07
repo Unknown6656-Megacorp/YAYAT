@@ -135,7 +135,7 @@ function uuid()
 
 
 if ('serviceWorker' in navigator && use_service_worker)
-     navigator.serviceWorker.register('/service-worker.js');
+    navigator.serviceWorker.register('/service-worker.js');
 
 
 $('page-container > main.text').parent().css('overflow-y', 'auto');
