@@ -36,6 +36,15 @@
             {% endblock content %}
         </page-container>
         <footer>
+            <footer-item>
+                {% if uname is defined %}
+                Logged in as <b>{{uname}}</b>.
+                {% else %}
+                Not logged in.
+                {% endif %}
+            </footer-item>
+
+
             [TODO]
         </footer>
     </body>
