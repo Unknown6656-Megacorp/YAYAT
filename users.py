@@ -11,12 +11,34 @@ from __main__ import USER_DIR, _DEBUG_, parse_utc, print_utc
 
 @dataclass
 class UserSettings:
+    def __init__(self,
+        reset_zoom : bool = True,
+        smooth_zoom : bool = False,
+        last_frames : dict[tuple[int, int], int] = dict() # dictionary mapping [proj, task] -> frame
+    ):
+        self.reset_zoom = reset_zoom
+        self.smooth_zoom = smooth_zoom
+        self.last_frames = last_frames
+
     def to_jsonobj(self) -> dict[str, Any]:
-        return { }
+        return {
+            'reset_zoom': self.reset_zoom,
+            'smooth_zoom': self.smooth_zoom,
+            'last_frames': {
+                f'{t[0]}|{t[1]}':self.last_frames[t] for t in self.last_frames
+            },
+        }
 
     @staticmethod
     def from_jsonobj(jsonobj : dict[str, Any]) -> 'UserSettings':
-        return UserSettings( )
+        return UserSettings(
+            reset_zoom = bool(jsonobj['reset_zoom']),
+            smooth_zoom = bool(jsonobj['smooth_zoom']),
+            last_frames = {
+                tuple(int(i) for i in key.split('|')):jsonobj['last_frames'][key]
+                for key in jsonobj['last_frames']
+            },
+        )
 
 
 @dataclass
