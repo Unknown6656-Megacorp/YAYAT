@@ -2,7 +2,7 @@ import os.path as osp
 from typing import Callable
 
 from flask import Flask, request, send_from_directory, render_template, redirect, abort
-from __main__ import app, STATIC_DIR, USER_DIR, __file__ as mainfile
+from __main__ import app, STATIC_DIR, USER_DIR
 from server_api import get_logged_in_name, USER_FILE
 from projects import *
 
@@ -76,7 +76,7 @@ def route_font(path : str = ''):
 
 @app.route(f'/yayat/')
 def route_index():
-    if (uname := get_logged_in_name()) is None:
+    if get_logged_in_name() is None:
         return redirect('/yayat/login/')
     else:
         return redirect('/yayat/projects/')
@@ -85,7 +85,6 @@ def route_index():
 def route_login():
     return render_template('login.html',
         userfile = osp.normpath(osp.join(USER_DIR, USER_FILE)),
-        mainfile = osp.normpath(mainfile),
         title = 'Login'
     )
 
@@ -94,7 +93,11 @@ def route_all_projects():
     if (uname := get_logged_in_name()) is None:
         return redirect('/yayat/login/', redirect = request.full_path)
     else:
-        return render_template('projects.html', uname = uname, title = 'Projects')
+        return render_template(
+            'projects.html',
+            uname = uname,
+            title = 'Projects'
+        )
 
 @app.route(f'/yayat/projects/<int:project>/')
 def route_projects(project : int):
