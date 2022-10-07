@@ -134,6 +134,10 @@ function uuid()
 }
 
 
+if ('serviceWorker' in navigator)
+     navigator.serviceWorker.register('/service-worker.js');
+
+
 $('page-container > main.text').parent().css('overflow-y', 'auto');
 
 $('.open[href]').click(elem => window.location.href = $(elem.target).attr('href'));

@@ -34,13 +34,21 @@ def route_root():
 
 @app.route(f'/favicon.ico')
 def route_favicon():
-    return route_static('favicon.ico')
+    return route_static('img/favicon.ico')
+
+@app.route('/service-worker.js')
+def route_service_worker():
+    return route_js('service-worker.js')
 
 @app.route(f'/static/<path:path>')
 @app.route(f'/static/templates/<path:path>')
 @app.route(f'/yayat/static/<path:path>')
 def route_direct_static(path : str = ''):
     return abort(403)
+
+@app.route(f'/offline')
+def route_offline():
+    return render_template('offline.html', title = 'You are offline')
 
 @app.route(f'/yayat/<path:path>')
 def route_static(path : str = ''):
