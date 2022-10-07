@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE_NAME = 'yayat-offline-v1';
+const CACHE_NAME = 'offline-cache-v1';
 const CACHE_URLS = [
     // '/service-worker.js',
     '/js/jquery.js',
@@ -22,6 +22,7 @@ const OFFLINE_URL = '/offline';
 
 self.addEventListener('install', event =>
 {
+    self.skipWaiting();
     event.waitUntil((async function()
     {
         const cache = await caches.open(CACHE_NAME);
@@ -29,12 +30,11 @@ self.addEventListener('install', event =>
         await cache.add(new Request(OFFLINE_URL, { cache: 'reload' }));
         await cache.addAll(CACHE_URLS);
     })());
-    // self.skipWaiting();
 });
 
 self.addEventListener('activate', event => event.waitUntil((async function()
 {
-    if ('navigationPreload' in self.registration)
+    if (self.registration && 'navigationPreload' in self.registration)
         await self.registration.navigationPreload.enable();
 
     const names = await caches.keys();
@@ -45,39 +45,43 @@ self.addEventListener('activate', event => event.waitUntil((async function()
             return caches.delete(CACHE_NAME);
     });
 
-    await self.clients.claim();
-
-    return Promise.all(names);
+    // await self.clients.claim();
 })()));
 
 self.addEventListener('fetch', event =>
 {
-    if (event.request.mode in ['navigate', 'no-cors'] && event.request.method === 'GET')
+    const { request } = event;
+    let url = request.url;
+
+    if (request.headers.has('range'))
+        return;
+    else
         event.respondWith((async function()
         {
-            try
-            {
-                const preload ='navigationPreload' in self.registration ? await event.preloadResponse : undefined;
+            const cache = await caches.open(CACHE_NAME);
+            let response = await cache.match(request);
 
-                if (preload)
-                    return preload;
-                else
+            if (response)
+                return response;
+            else
+                try
                 {
-                    const response = await fetch(event.request);
+                    response = 'navigationPreload' in self.registration ? await event.preloadResponse : undefined;
+                    response = response || await fetch(event.request);
 
                     return response;
                 }
-            }
-            catch (error)
-            {
-                const cache = await caches.open(CACHE_NAME);
-                const response = await cache.match(OFFLINE_URL);
-                const keys = await cache.keys();
+                catch (error)
+                {
+                    if ((request.mode === 'navigate' || request.mode === 'no-cors') && request.method === 'GET')
+                    {
+                        response = await cache.match(OFFLINE_URL);
 
-                console.log(keys);
-
-                return response;
-            }
+                        return response;
+                    }
+                    else
+                        throw error;
+                }
         })());
 });
 
