@@ -134,7 +134,7 @@ function uuid()
 }
 
 
-if ('serviceWorker' in navigator)
+if ('serviceWorker' in navigator && use_service_worker)
      navigator.serviceWorker.register('/service-worker.js');
 
 

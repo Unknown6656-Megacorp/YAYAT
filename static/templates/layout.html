@@ -39,6 +39,9 @@
             [TODO]
         </footer>
     </body>
+    <script type="text/javascript" language="javascript">
+        const use_service_worker = !{{debug|lower}}; // This value is determined by the _DEBUG_ variable in server.py
+    </script>
     <script type="text/javascript" language="javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" language="javascript" src="/js/common.js"></script>
     {% block scripts %}

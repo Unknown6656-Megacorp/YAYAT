@@ -51,6 +51,11 @@ if _DEBUG_:
         r.headers['Cache-Control'] = 'public, max-age=0'
         return r
 
+@app.context_processor
+def inject_globals():
+    return {
+        'debug': _DEBUG_
+    }
 
 
 parser = argparse.ArgumentParser()
