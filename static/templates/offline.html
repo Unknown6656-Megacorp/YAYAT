@@ -3,7 +3,21 @@
 {% endblock %}
 {% block content %}
     <main class="text">
-        <h1>You are offline :(</h1>
+        <h1>You seem to be offline :(</h1>
+        <p>
+            The server does not seem to be reachable.
+            This may be the consequence of one or more of the following reasons:
+        </p>
+        <ul>
+            <li>You are not connected to the Internet.</li>
+            <li>
+                The server has not been started. Try to restart it by running the following command:
+                <code>python server.py</code>
+            </li>
+            <li>The server is not accessible as it is hidden behind a firewall or placed in another subnet.</li>
+        </ul>
+        Try addressing the issues above and then reloading the current page by
+        pressing the following button or pressing <kbd>F5</kbd> or <kbd>Ctrl</kbd> + <kbd>C</kbd>.
     </main>
 {% endblock %}
 {% block scripts %}
