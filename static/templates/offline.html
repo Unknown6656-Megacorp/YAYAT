@@ -11,14 +11,21 @@
         <ul>
             <li>You are not connected to the Internet.</li>
             <li>
-                The server has not been started. Try to restart it by running the following command:
-                <code>python server.py</code>
+                The server has not been started. Try to restart it by running the command
+                <code>python3 "{{mainfile}}"</code>.
             </li>
             <li>The server is not accessible as it is hidden behind a firewall or placed in another subnet.</li>
         </ul>
-        Try addressing the issues above and then reloading the current page by
-        pressing the following button or pressing <kbd>F5</kbd> or <kbd>Ctrl</kbd> + <kbd>C</kbd>.
+        <p>
+            Try addressing the issues above and then reloading the current page by
+            pressing the following button or using the keyboard shortcut <kbd>F5</kbd> or <kbd>Ctrl</kbd> + <kbd>R</kbd>.
+        </p>
+        <br/>
+        <button id="btn-reload" class="primary">Reload page</button>
     </main>
 {% endblock %}
 {% block scripts %}
+    <script type="text/javascript" language="javascript">
+        $('#btn-reload').click(() => window.location.reload());
+    </script>
 {% endblock %}
