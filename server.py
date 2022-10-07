@@ -54,7 +54,8 @@ if _DEBUG_:
 @app.context_processor
 def inject_globals():
     return {
-        'debug': _DEBUG_
+        'debug': _DEBUG_,
+        'mainfile': osp.normpath(__file__),
     }
 
 
