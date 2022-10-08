@@ -2,7 +2,7 @@
 
 
 frame-list {
-    overflow-y: scroll;
+    justify-content: space-evenly;
     min-height: 200px;
     padding: 5px 0px;
     flex-wrap: wrap;
