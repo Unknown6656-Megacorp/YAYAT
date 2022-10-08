@@ -1,14 +1,90 @@
 'use strict';
 
-let current_frame = 0;
 
+const PAN_OVERFLOW_PERC = 60;
+const pan_container = $('annotation-canvas');
+const pan_canvas = $('svg-holder');
+const pan_initial = { x: 0, y: 0 };
+const pan_offset = { x: 0, y: 0 }; // transform offset from center
+let pan_active = false;
+
+
+function update_pos_zoom()
+{
+    const { width, height } = pan_container[0].getBoundingClientRect();
+    let left = 100.0 * pan_offset.x / width;
+    let top = 100.0 * pan_offset.y / height;
+
+    left = Math.max(-PAN_OVERFLOW_PERC, Math.min(left, PAN_OVERFLOW_PERC));
+    top = Math.max(-PAN_OVERFLOW_PERC, Math.min(top, PAN_OVERFLOW_PERC));
+
+    pan_offset.x = left * width * 0.01;
+    pan_offset.y = top * height * 0.01;
+    pan_canvas.css('transform', `translate(${left}%, ${top}%)`);
+}
+
+function get_pan_xy({ clientX, clientY })
+{
+    const { left, top } = pan_container[0].getBoundingClientRect();
+
+    return {
+        x: clientX - left,
+        y: clientY - top
+    };
+}
+
+function pan_start(event)
+{
+    event.preventDefault();
+    pan_active = true;
+
+    const { x, y } = get_pan_xy(event);
+
+    pan_initial.x = x - pan_offset.x;
+    pan_initial.y = y - pan_offset.y;
+}
+
+function pan_move(event)
+{
+    if (pan_active)
+    {
+        const { x, y } = get_pan_xy(event);
+        pan_offset.x = x - pan_initial.x;
+        pan_offset.y = y - pan_initial.y;
+
+        update_pos_zoom();
+    }
+};
+
+$(document).on('mousemove', pan_move);
+$(document).on('mouseup', e => pan_active = false);
+pan_container.on('mousedown', pan_start);
+pan_container.on('wheel', event =>
+{
+    if (event.originalEvent.deltaY < 0)
+    {
+        // wheeled up
+    }
+    else if (event.originalEvent.deltaY > 0) {
+        // wheeled down
+    }
+});
+
+
+
+
+
+
+
+let current_frame = 0;
 
 $('#btn-first-frame').click(() => goto_frame(0));
 $('#btn-prev-frame').click(() => goto_frame(current_frame - 1));
 $('#btn-next-frame').click(() => goto_frame(current_frame + 1));
 $('#btn-last-frame').click(() => goto_frame(task.frames.length - 1));
 $('#frame-slider, #frame-number').on('change input paste', e => goto_frame($(e.target).val() - 1));
-
+$('#btn-play-backward');
+$('#btn-play-forward');
 
 function goto_frame(frame_number)
 {
@@ -27,6 +103,7 @@ function goto_frame(frame_number)
     }
 
     $('#svg-annotations').html(svg);
+    $('svg-holder, #svg-root').css('width', `${frame.width}px`).css('height', `${frame.height}px`);
     $('#svg-root').attr('viewBox', `0 0 ${frame.width} ${frame.height}`);
     $('#svg-image').attr('href', `/api/img/${task.project}/${task.id}/${frame.id}`);
     $('#frame-resolution').text(`${frame.width} x ${frame.height} `);
@@ -42,12 +119,17 @@ function goto_frame(frame_number)
 }
 
 
+
+
+
+
+
+
+
+
+
+
 const hash = parseInt(window.location.hash.slice(1));
 
 if (hash > 0 && hash <= task.frames.length)
     goto_frame(hash - 1);
-
-
-
-$('#btn-play-backward');
-$('#btn-play-forward');

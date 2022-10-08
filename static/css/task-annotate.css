@@ -135,7 +135,16 @@ timeline-info {
 annotation-canvas {
     background-image: var(--image-hatched-bg);
     grid-area: 3 / 1 / 5 / 2;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
     display: flex;
+}
+
+svg-holder {
+    display: block;
+    height: 100%;
+    width: 100%;
 }
 
 annotation-controls {
