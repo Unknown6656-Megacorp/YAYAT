@@ -3,10 +3,10 @@
 let current_frame = 0;
 
 
-$('#first-frame').click(() => goto_frame(0));
-$('#prev-frame').click(() => goto_frame(current_frame - 1));
-$('#next-frame').click(() => goto_frame(current_frame + 1));
-$('#last-frame').click(() => goto_frame(task.frames.length - 1));
+$('#btn-first-frame').click(() => goto_frame(0));
+$('#btn-prev-frame').click(() => goto_frame(current_frame - 1));
+$('#btn-next-frame').click(() => goto_frame(current_frame + 1));
+$('#btn-last-frame').click(() => goto_frame(task.frames.length - 1));
 $('#frame-slider, #frame-number').on('change input paste', e => goto_frame($(e.target).val() - 1));
 
 
@@ -34,6 +34,8 @@ function goto_frame(frame_number)
     $('#frame-internal-name').text(frame.local_image_filename);
     $('#frame-original-name').text(frame.original_image_filename);
     $('#frame-slider, #frame-number').val(frame_number + 1);
+    $('#btn-first-frame, #btn-prev-frame, #btn-play-backward').attr('disabled', frame_number < 1);
+    $('#btn-last-frame, #btn-next-frame, #btn-play-forward').attr('disabled', frame_number > task.frames.length - 2);
 
     window.history.replaceState(null, null, `#${frame_number + 1}`);
     current_frame = frame_number;
@@ -47,5 +49,5 @@ if (hash > 0 && hash <= task.frames.length)
 
 
 
-$('#play-backward');
-$('#play-forward');
+$('#btn-play-backward');
+$('#btn-play-forward');
