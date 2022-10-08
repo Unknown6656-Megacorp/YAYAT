@@ -26,7 +26,9 @@ button_save_labels.click(() =>
         });
     }
 
-    query_api_sync(`projects/${project.id}/labels/change`, { }, function()
+    query_api_sync(`projects/${project.id}/labels/change`, {
+        labels: labels
+    }, function()
     {
         // disable warning on leaving page
         button_save_labels.css('visibility', 'hidden');

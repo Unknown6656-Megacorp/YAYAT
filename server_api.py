@@ -52,6 +52,7 @@ def json_error(error : str, code : int = 400) -> Response:
         'date': print_utcnow(),
         'response': None,
         'error': error,
+        'request_data': request.get_json(silent = True) or dict(request.args) or { },
     })
     resp.status_code = code
     resp.status = code
@@ -208,29 +209,21 @@ def api_projects_labels_info(args : dict, uname : str, project : int, label : in
 def api_projects_labels_change_all(args : dict, uname : str, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
+    elif (labels := args.get('labels', None)) is None:
+        return json_error('No label information has been provided.')
     else:
-        pass # TODO
+        try:
+            proj.labels = [Label(
+                id = int(label['id']),
+                name = label['name'],
+                order = int(label['order']),
+                color = label['color']
+            ) for label in labels]
+            proj.update_json()
 
-
-@secure_api('/api/projects/<int:project>/labels/<int:label>/change')
-def api_projects_labels_change(args : dict, uname : str, project : int, label : int):
-    if (proj := Project.get_existing_project(project)) is None:
-        return json_error(f'Invalid project id "{project}".')
-    elif len(lbl := [l for l in proj.labels if l.id == label]) != 1:
-        return json_error(f'Unknown label id "{label}"')
-    else:
-        pass # TODO
-
-
-@secure_api('/api/projects/<int:project>/labels/<int:label>/delete')
-def api_projects_labels_delete(args : dict, uname : str, project : int, label : int):
-    if (proj := Project.get_existing_project(project)) is None:
-        return json_error(f'Invalid project id "{project}".')
-    elif len(lbl := [l for l in proj.labels if l.id == label]) != 1:
-        return json_error(f'Unknown label id "{label}"')
-    else:
-        proj.labels.remove(lbl)
-        return json_ok({ })
+            return json_ok({ })
+        except:
+            return json_error('Invalid label data')
 
 
 @secure_api('/api/projects/<int:project>/tasks/')
