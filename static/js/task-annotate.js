@@ -7,136 +7,41 @@ const current_frame = {
     height: 0,
 };
 
-const PAN_OVERFLOW_PERC = 60;
-const SCROLL_FACTOR = .05;
 const pan_container = $('annotation-canvas');
 const pan_canvas = $('svg-holder');
-const pan_initial = { x: 0, y: 0 };
-const pan_offset = { x: 0, y: 0 }; // transform offset from center
-let zoom_factor = 1.0;
-let pan_active = false;
+
+
+pan_container.on('dblclick', reset_pos_zoom);
+let pz = panzoom(pan_canvas[0], {
+    zoomSpeed: .5,
+    smoothScroll: true,
+    maxZoom: 15,
+    minZoom: .7,
+    bounds: true,
+    boundsPadding: .4,
+    zoomDoubleClickSpeed: 1,
+    transformOrigin: {x: 0.5, y: 0.5},
+    onDoubleClick: event => {
+        return false;
+    },
+});
+
+// if (pz)
+// pz.dispose();
 
 
 function reset_pos_zoom()
 {
     const cnv = pan_container[0].getBoundingClientRect();
+    const zoom = Math.min(1.0 * cnv.width / current_frame.width, 1.0 * cnv.height / current_frame.height);
 
-    pan_active = false;
-    zoom_factor = Math.min(1.0 * cnv.width / current_frame.width, 1.0 * cnv.height / current_frame.height);
-    pan_initial.x = 0;
-    pan_initial.y = 0;
-    pan_offset.x = 0;
-    pan_offset.y = 0;
-
-    console.log('reset');
-
-    update_pos_zoom();
+    pz.zoomAbs(0, 0, zoom);
+    pz.moveTo(0, 0);
 }
 
-function update_pos_zoom()
-{
-    const { width, height } = pan_container[0].getBoundingClientRect();
-    let left = 100.0 * pan_offset.x / width;
-    let top = 100.0 * pan_offset.y / height;
 
-    left = Math.max(-PAN_OVERFLOW_PERC, Math.min(left, PAN_OVERFLOW_PERC));
-    top = Math.max(-PAN_OVERFLOW_PERC, Math.min(top, PAN_OVERFLOW_PERC));
-
-    pan_offset.x = left * width * 0.01;
-    pan_offset.y = top * height * 0.01;
-    pan_canvas.css('transform', `scale(${zoom_factor * 100.0}%) translate(${left}%, ${top}%)`);
-
-    console.log('update', left, top, zoom_factor);
-}
-
-function get_pan_xy({ clientX, clientY })
-{
-    const { left, top } = pan_container[0].getBoundingClientRect();
-
-    return {
-        x: clientX - left,
-        y: clientY - top
-    };
-}
-
-function pan_start(event)
-{
-    event.preventDefault();
-    pan_active = true;
-
-    const { x, y } = get_pan_xy(event);
-
-    pan_initial.x = x - pan_offset.x;
-    pan_initial.y = y - pan_offset.y;
-
-    console.log('start', pan_initial);
-}
-
-function pan_move(event)
-{
-    if (pan_active)
-    {
-        const { x, y } = get_pan_xy(event);
-        const cnv = pan_container[0].getBoundingClientRect();
-
-        pan_offset.x = cnv.width / current_frame.width * (x - pan_initial.x);
-        pan_offset.y = cnv.height / current_frame.height * (y - pan_initial.y);
-
-        console.log('move', pan_offset);
-
-        update_pos_zoom();
-    }
-};
-
-$(document).on('mousemove', pan_move);
-$(document).on('mouseup', e => pan_active = false);
-pan_container.on('dblclick', reset_pos_zoom);
-pan_container.on('mousedown', pan_start);
-pan_container.on('wheel', event =>
-{
-    event = event.originalEvent;
-    event.preventDefault();
-    
-    const mousex = event.clientX - pan_offset.x;
-    const mousey = event.clientY - pan_offset.y;
-    const wheel = event.deltaY < 0 ? -1 : 1;
-    const zoom = Math.exp(wheel * SCROLL_FACTOR);
-
-    zoom_factor *= zoom;
-    zoom_factor = Math.max(.25, zoom_factor);
-    zoom_factor = Math.min(10, zoom_factor);
-
-    // // Translate so the visible origin is at the context's origin.
-    // context.translate(originx, originy);
-  
-    // // Compute the new visible origin. Originally the mouse is at a
-    // // distance mouse/scale from the corner, we want the point under
-    // // the mouse to remain in the same place after the zoom, but this
-    // // is at mouse/new_scale away from the corner. Therefore we need to
-    // // shift the origin (coordinates of the corner) to account for this.
-    // originx -= mousex/(scale*zoom) - mousex/scale;
-    // originy -= mousey/(scale*zoom) - mousey/scale;
-    
-    // // Scale it (centered around the origin due to the trasnslate above).
-    // context.scale(zoom, zoom);
-    // // Offset the visible origin to it's proper position.
-    // context.translate(-originx, -originy);
-
-    // // Update scale and others.
-    // scale *= zoom;
-    // visibleWidth = width / scale;
-    // visibleHeight = height / scale;
-
-
-    // zoom_factor += Math.exp(zoom_offs);
-    update_pos_zoom();
-});
-
-
-
-
-
-
+// pixelated
+// smooth
 
 
 $('#btn-first-frame').click(() => goto_frame(0));
