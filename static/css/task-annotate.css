@@ -135,13 +135,27 @@ timeline-info {
 annotation-canvas {
     background-image: var(--image-hatched-bg);
     grid-area: 3 / 1 / 5 / 2;
-    justify-content: center;
-    align-items: center;
+    /* justify-content: center; */
+    /* align-items: center; */
+    position: relative;
     overflow: hidden;
-    display: flex;
+    /* display: flex; */
+}
+
+panzoom-controls {
+    border-radius: var(--border-radius);
+    background-color: #ffffff88;
+    margin: 5px;
+    padding: 5px;
+    z-index: 10;
+    position: absolute;
+    display: block;
+    top: 0px;
+    left: 0px;
 }
 
 svg-holder {
+    /* transform-origin: 50% 50% !important; */
     display: block;
     height: 100%;
     width: 100%;

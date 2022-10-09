@@ -24,11 +24,18 @@
             internally: "<span id="frame-internal-name"></span>")
         </timeline-info>
         <annotation-canvas>
+            <panzoom-controls>
+                [Zoom +]
+                <input type="range"/>
+                [Zoom -]
+                [Reset Zoom]
+                [Reset Pan]
+            </panzoom-controls>
             <svg-holder>
                 <svg id="svg-root">
                     <g id="svg-cursor"></g>
                     <g id="svg-annotations"></g>
-                    <image id="svg-image"/>
+                    <image id="svg-image" image-rendering="pixelated"/>
                 </svg>
             </svg-holder>
         </annotation-canvas>
@@ -48,5 +55,6 @@
     <script type="text/javascript" language="javascript">
         const task = {{task.to_jsonstr()|safe}};
     </script>
+    <script type="text/javascript" language="javascript" src="/js/panzoom.js"></script>
     <script type="text/javascript" language="javascript" src="/js/task-annotate.js"></script>
 {% endblock %}
