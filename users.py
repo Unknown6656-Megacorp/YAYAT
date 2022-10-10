@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 import hashlib
+import json
 import os
 import os.path as osp
 
@@ -49,6 +50,10 @@ class UserInfo:
     token : str | None
     passw : str | None
     hash : str
+
+    def is_root(self) -> bool : return self.uname == USER_ROOT
+
+    def to_jsonstr(self) -> str : return json.dumps(self.to_jsonobj())
 
     def to_jsonobj(self) -> dict[str, Any]:
         return {
