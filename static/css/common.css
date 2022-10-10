@@ -149,21 +149,22 @@ kbd {
     opacity: .7;
 }
 
-:root,
 body {
     min-width: calc(50px + var(--main-content-width));
+    flex-direction: column;
+    position: absolute;
     overflow: hidden;
+    display: flex;
     padding: 0px;
     margin: 0px;
+    height: 100%;
+    width: 100%;
 }
 
 body header,
 body footer {
     background-color: var(--color-toolbars);
-    position: fixed;
     width: 100%;
-    right: 0px;
-    left: 0px;
 }
 
 body header {
@@ -172,9 +173,7 @@ body header {
     flex-direction: row;
     align-content: center;
     align-items: center;
-    z-index: 2000;
     display: flex;
-    top: 0px;
 }
 
 body header header-separator {
@@ -221,10 +220,7 @@ body header #main-icon {
 body footer {
     border-top: 1px solid var(--color-foreground);
     height: var(--footer-height);
-    position: fixed;
-    z-index: 1000;
     display: block;
-    bottom: 0px;
 }
 
 modal-container {
@@ -296,16 +292,11 @@ page-container {
     flex-direction: column;
     align-content: center;
     align-items: center;
-    position: absolute;
     overflow-x: auto;
     display: flex;
-    height: calc(100% - calc(var(--header-height) + var(--footer-height)));
-    bottom: var(--footer-height);
-    top: var(--header-height);
     filter: blur(0px);
     width: 100%;
-    right: 0px;
-    left: 0px;
+    flex: 1;
 
     transition: filter .5s;
 }
