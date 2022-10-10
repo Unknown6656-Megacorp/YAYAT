@@ -11,7 +11,10 @@ import json
 import cv2
 import numpy as np
 import ffmpeg
+
 from __main__ import print_utc, parse_utc, PROJECTS_DIR, _DEBUG_
+from users import *
+
 
 PROJECTS_DIR : str
 PROJECT_FILE = 'project.json'
@@ -570,9 +573,9 @@ class Project:
 
         return label
 
-    def add_task(self, name : str, uname : str) -> Task:
+    def add_task(self, name : str, user : UserInfo) -> Task:
         id = get_next_free_id(self.get_tasks(), lambda t: t.id, 1)
-        task = Task(self, id, name, uname)
+        task = Task(self, id, name, user.uname)
         self.tasks.append(id)
         self.update_json()
 
@@ -608,7 +611,7 @@ class Project:
         return fetch_by_id(Project.get_existing_projects(), lambda p: p.id, id)
 
     @staticmethod
-    def create_new_project(name : str, uname : str) -> 'Project':
+    def create_new_project(name : str, user : UserInfo) -> 'Project':
         id = get_next_free_id(Project.get_existing_projects(), lambda p: p.id, 1)
-        return Project(id, name, uname)
+        return Project(id, name, user.uname)
 

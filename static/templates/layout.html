@@ -37,8 +37,8 @@
         </page-container>
         <footer>
             <footer-item>
-                {% if uname is defined %}
-                Logged in as <b>{{uname}}</b>.
+                {% if user is defined %}
+                Logged in as <b>{{user.uname}}</b>.
                 {% else %}
                 Not logged in.
                 {% endif %}
@@ -50,6 +50,11 @@
     </body>
     <script type="text/javascript" language="javascript">
         const use_service_worker = !{{debug|lower}}; // This value is determined by the _DEBUG_ variable in server.py
+        // {% if user is defined %}
+        const user = {{user.to_jsonstr()|safe}};
+        // {% else %}
+        const user = undefined;
+        // {% endif %}
     </script>
     <script type="text/javascript" language="javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" language="javascript" src="/js/common.js"></script>

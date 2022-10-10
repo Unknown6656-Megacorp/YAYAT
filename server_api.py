@@ -59,9 +59,9 @@ def json_error(error : str, code : int = 400) -> Response:
     return resp
 
 
-def get_logged_in_name() -> str | None:
+def get_logged_in_user() -> UserInfo | None:
     if _DEBUG_:
-        return USER_ROOT
+        return USER_INFOS[USER_ROOT]
     else:
         uname = request.cookies[COOKIE_USER_NAME] if COOKIE_USER_NAME in request.cookies else ''
         token = request.cookies[COOKIE_API_TOKEN] if COOKIE_API_TOKEN in request.cookies else ''
@@ -69,24 +69,29 @@ def get_logged_in_name() -> str | None:
         if uname in USER_INFOS:
             entry = USER_INFOS[uname]
             if entry.token == token and (datetime.utcnow() - entry.date).total_seconds() <= USER_TIMEOUT:
-                return uname
+                return entry
     return None
 
 
-# don't look too hard at this clusterfuck of a signature, just use it as a decorator.
-def secure_api(route : str) -> Callable[[Callable[[str, dict[str, Any]], Response]], Callable[[dict[str, Any]], Response]]:
-    def _decorated(callback : Callable[[str, dict[str, Any]], Response]) -> Callable[[dict[str, Any]], Response]:
+# don't look too hard at this clusterfuck of a signature, just use it as a decorator for a function with the signature
+#   (args : dict, user : UserInfo, ...) -> Response
+def secure_api(route : str) -> Callable[[Callable[[dict, UserInfo], Response]], Callable[[dict], Response]]:
+    def _decorated(callback : Callable[[dict, UserInfo], Response]) -> Callable[[dict], Response]:
         @app.route(route, endpoint = callback.__name__, methods = ['GET', 'POST'])
         def _inner(**kwargs):
-            uname = get_logged_in_name()
+            user = get_logged_in_user()
             response : Response = json_error('You are not authorized to perform this action.', 403)
             response.delete_cookie(COOKIE_API_TOKEN)
             response.delete_cookie(COOKIE_USER_NAME)
 
-            if uname is not None:
-                if uname in USER_INFOS:
-                    USER_INFOS[uname].date = datetime.utcnow()
-                response = callback(uname = uname, args = request.get_json(silent = True) or request.args or { }, **kwargs)
+            if user is not None:
+                user.date = datetime.utcnow()
+
+                response = callback(
+                    user = user,
+                    args = request.get_json(silent = True) or request.args or { },
+                    **kwargs
+                )
 
             return response
         return _inner
@@ -118,8 +123,8 @@ def api_login():
 #   { USER_TOKENS }
 # Requires to be ROOT_USER
 @secure_api('/api/users/')
-def api_users(args : dict, uname : str):
-    if uname == USER_ROOT:
+def api_users(args : dict, user : UserInfo):
+    if user.is_root():
         return json_ok([u.to_jsonobj() for u in USER_INFOS.values()])
     else:
         return json_error('You are not the root user.', 403)
@@ -127,8 +132,8 @@ def api_users(args : dict, uname : str):
 
 # Deletes the login cookies
 @secure_api('/api/logout')
-def api_logout(args : dict, uname : str):
-    USER_INFOS.pop(uname, None)
+def api_logout(args : dict, user : UserInfo):
+    USER_INFOS.pop(user.uname, None)
     response = json_ok({})
     response.delete_cookie(COOKIE_API_TOKEN)
     response.delete_cookie(COOKIE_USER_NAME)
@@ -137,7 +142,7 @@ def api_logout(args : dict, uname : str):
 
 # Returns all project jsons
 @secure_api('/api/projects/')
-def api_projects(args : dict, uname : str):
+def api_projects(args : dict, user : UserInfo):
     return json_ok([p.to_jsonobj() for p in Project.get_existing_projects()])
 
 
@@ -145,16 +150,16 @@ def api_projects(args : dict, uname : str):
 #   { name : str }
 # Returns the newly created project json
 @secure_api('/api/projects/create')
-def api_projects_create(args : dict, uname : str):
+def api_projects_create(args : dict, user : UserInfo):
     if (name := request.args.get('name')) is None or any(p for p in Project.get_existing_projects() if p.name == name):
         return json_error('Please provide a non-empty name for the project which has not yet been used.')
     else:
-        return json_ok(Project.create_new_project(name, uname).to_jsonobj())
+        return json_ok(Project.create_new_project(name, user).to_jsonobj())
 
 
 # Returns the project json
 @secure_api('/api/projects/<int:project>/')
-def api_projects_info(args : dict, uname : str, project : int):
+def api_projects_info(args : dict, user : UserInfo, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     else:
@@ -162,7 +167,7 @@ def api_projects_info(args : dict, uname : str, project : int):
 
 
 @secure_api('/api/projects/<int:project>/delete')
-def api_projects_delete(args : dict, uname : str, project : int):
+def api_projects_delete(args : dict, user : UserInfo, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     else:
@@ -174,7 +179,7 @@ def api_projects_delete(args : dict, uname : str, project : int):
 #   { name : str, color : str }
 # Returns the label json
 @secure_api('/api/projects/<int:project>/labels/create')
-def api_projects_labels_create(args : dict, uname : str, project : int):
+def api_projects_labels_create(args : dict, user : UserInfo, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif (name := args.get('name')) is None:
@@ -188,7 +193,7 @@ def api_projects_labels_create(args : dict, uname : str, project : int):
 
 
 @secure_api('/api/projects/<int:project>/labels/')
-def api_projects_labels(args : dict, uname : str, project : int):
+def api_projects_labels(args : dict, user : UserInfo, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     else:
@@ -196,7 +201,7 @@ def api_projects_labels(args : dict, uname : str, project : int):
 
 
 @secure_api('/api/projects/<int:project>/labels/<int:label>/')
-def api_projects_labels_info(args : dict, uname : str, project : int, label : int):
+def api_projects_labels_info(args : dict, user : UserInfo, project : int, label : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif len(lbl := [l for l in proj.labels if l.id == label]) != 1:
@@ -206,7 +211,7 @@ def api_projects_labels_info(args : dict, uname : str, project : int, label : in
 
 
 @secure_api('/api/projects/<int:project>/labels/change')
-def api_projects_labels_change_all(args : dict, uname : str, project : int):
+def api_projects_labels_change_all(args : dict, user : UserInfo, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif (labels := args.get('labels', None)) is None:
@@ -227,7 +232,7 @@ def api_projects_labels_change_all(args : dict, uname : str, project : int):
 
 
 @secure_api('/api/projects/<int:project>/tasks/')
-def api_projects_tasks(args : dict, uname : str, project : int):
+def api_projects_tasks(args : dict, user : UserInfo, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     else:
@@ -236,7 +241,7 @@ def api_projects_tasks(args : dict, uname : str, project : int):
 
 @secure_api('/api/tasks/')
 @secure_api('/api/projects/tasks/')
-def api_all_tasks(args : dict, uname : str):
+def api_all_tasks(args : dict, user : UserInfo):
     return json_ok([
         t.to_jsonobj()
         for p in Project.get_existing_projects()
@@ -248,7 +253,7 @@ def api_all_tasks(args : dict, uname : str):
 #   { name : str }
 # Returns the task json
 @secure_api('/api/projects/<int:project>/tasks/create')
-def api_projects_tasks_create(args : dict, uname : str, project : int):
+def api_projects_tasks_create(args : dict, user : UserInfo, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif (name := args.get('name', None)) is None:
@@ -258,11 +263,11 @@ def api_projects_tasks_create(args : dict, uname : str, project : int):
     elif any(t for t in proj.get_tasks() if t.name == name):
         return json_error(f'A task with the name "{name}" does already exist.')
     else:
-        return json_ok(proj.add_task(name, uname).to_jsonobj())
+        return json_ok(proj.add_task(name, user).to_jsonobj())
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/')
-def api_projects_tasks_info(args : dict, uname : str, project : int, task : int):
+def api_projects_tasks_info(args : dict, user : UserInfo, project : int, task : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif (t := proj.get_task(task)) is None:
@@ -272,7 +277,7 @@ def api_projects_tasks_info(args : dict, uname : str, project : int, task : int)
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/delete')
-def api_projects_tasks_delete(args : dict, uname : str, project : int, task : int):
+def api_projects_tasks_delete(args : dict, user : UserInfo, project : int, task : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif (t := proj.get_task(task)) is None:
@@ -283,7 +288,7 @@ def api_projects_tasks_delete(args : dict, uname : str, project : int, task : in
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/completed')
-def api_projects_tasks_completed(args : dict, uname : str, project : int, task : int):
+def api_projects_tasks_completed(args : dict, user : UserInfo, project : int, task : int):
     pass # TODO
 
 
@@ -301,7 +306,7 @@ def api_projects_tasks_completed(args : dict, uname : str, project : int, task :
 # RETURN:
 #   [ Frame ]
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/upload')
-def api_projects_tasks_upload(args : dict, uname : str, project : int, task : int):
+def api_projects_tasks_upload(args : dict, user : UserInfo, project : int, task : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif (t := proj.get_task(task)) is None:
@@ -370,22 +375,22 @@ def api_projects_tasks_upload(args : dict, uname : str, project : int, task : in
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/upload/progress')
-def api_projects_tasks_upload_progress(args : dict, uname : str, project : int, task : int):
+def api_projects_tasks_upload_progress(args : dict, user : UserInfo, project : int, task : int):
     return json_ok(task_upload_updates.get((project, task), []))
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/download')
-def api_projects_tasks_download(args : dict, uname : str, project : int, task : int):
+def api_projects_tasks_download(args : dict, user : UserInfo, project : int, task : int):
     pass # TODO
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/download/progress')
-def api_projects_tasks_download_progress(args : dict, uname : str, project : int, task : int):
+def api_projects_tasks_download_progress(args : dict, user : UserInfo, project : int, task : int):
     return json_ok(task_download_updates.get((project, task), []))
 
 
 @secure_api('/api/img/<int:project>/<int:task>/<int:frame>')
-def api_img(args : dict, uname : str, project : int, task : int, frame : int):
+def api_img(args : dict, user : UserInfo, project : int, task : int, frame : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif (t := proj.get_task(task)) is None:
@@ -397,7 +402,7 @@ def api_img(args : dict, uname : str, project : int, task : int, frame : int):
 
 
 @secure_api('/api/img/<int:project>/<int:task>/<int:frame>/preview')
-def api_img_preview(args : dict, uname : str, project : int, task : int, frame : int):
+def api_img_preview(args : dict, user : UserInfo, project : int, task : int, frame : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif (t := proj.get_task(task)) is None:
@@ -409,7 +414,7 @@ def api_img_preview(args : dict, uname : str, project : int, task : int, frame :
 
 
 @secure_api('/api/img/<int:project>/<int:task>/preview')
-def api_img_task_preview(args : dict, uname : str, project : int, task : int):
+def api_img_task_preview(args : dict, user : UserInfo, project : int, task : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif (t := proj.get_task(task)) is None:
@@ -421,7 +426,7 @@ def api_img_task_preview(args : dict, uname : str, project : int, task : int):
 
 
 @secure_api('/api/img/<int:project>/preview')
-def api_img_project_preview(args : dict, uname : str, project : int):
+def api_img_project_preview(args : dict, user : UserInfo, project : int):
     if (proj := Project.get_existing_project(project)) is None:
         return json_error(f'Invalid project id "{project}".')
     elif len(proj.tasks) == 0:
@@ -436,17 +441,17 @@ def api_img_project_preview(args : dict, uname : str, project : int):
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>')
-def api_projects_tasks_frames_info(args : dict, uname : str, project : int, task : int, frame : int):
+def api_projects_tasks_frames_info(args : dict, user : UserInfo, project : int, task : int, frame : int):
     pass # TODO
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>/change_annotations')
-def api_projects_tasks_frames_change_annotations(args : dict, uname : str, project : int, task : int, frame : int):
+def api_projects_tasks_frames_change_annotations(args : dict, user : UserInfo, project : int, task : int, frame : int):
     pass # TODO
 
 
 @secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>/download')
-def api_projects_tasks_frames_download(args : dict, uname : str, project : int, task : int, frame : int):
+def api_projects_tasks_frames_download(args : dict, user : UserInfo, project : int, task : int, frame : int):
     pass # TODO
 
 
@@ -472,7 +477,7 @@ def human_readable_size(num : int | float, scale : int | float = 1024.0, suffix 
 #       }]
 #   }
 @secure_api('/api/filesystem')
-def api_filesystem(args : dict, uname : str):
+def api_filesystem(args : dict, user : UserInfo):
     if (dir := args.get('dir', None)) is None:
         return json_error('No directory has been provided.')
     elif not osp.isdir(dir):
