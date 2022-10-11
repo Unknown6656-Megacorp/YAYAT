@@ -16,7 +16,7 @@
             <input id="frame-number" type="number" id="tb-curr-frame" value="1" min="1" max="{{task.frames|length}}"/> &nbsp; / {{task.frames|length}}
             <div class="padding"></div>
         </timeline-controls>
-        <timeline-info>
+        <timeline-info class="small">
             <span id="frame-resolution"></span> pixels
             <div class="padding"></div>
             (<span id="frame-source" data-source="?"></span>
@@ -25,12 +25,19 @@
         </timeline-info>
         <annotation-canvas>
             <panzoom-controls>
-                [Zoom +]
-                <input type="range"/>
-                [Zoom -]
-                [Reset Zoom]
-                [Reset Pan]
+                <button id="zoom-out"></button>
+                <input id="zoom-slider" min="0" max="100" value="30" type="range" orient="vertical"/>
+                <button id="zoom-in"></button>
+                <button id="zoom-reset"></button>
+                <button id="pan-reset"></button>
             </panzoom-controls>
+            <panzoom-window>
+                <svg id="pan-window-svg">
+                    <rect id="pan-window-svg-image" x="0" y="0" width="0" height="0"/>
+                    <rect id="pan-window-svg-client" x="0" y="0" width="0" height="0"/>
+                </svg>
+                <span id="zoom-level" class="small">--%</span>
+            </panzoom-window>
             <svg-holder>
                 <svg id="svg-root">
                     <g id="svg-cursor"></g>
@@ -42,7 +49,6 @@
         <annotation-controls>
             <button>new shape</button>
             <button>new track</button>
-            <button>reset zoom</button>
             <button>zoom into region</button>
             <button>....</button>
         </annotation-controls>

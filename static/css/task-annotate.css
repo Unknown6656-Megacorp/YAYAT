@@ -128,7 +128,6 @@ timeline-info {
     justify-content: center;
     flex-direction: row;
     align-items: center;
-    font-size: .8em;
     display: flex;
 }
 
@@ -142,16 +141,99 @@ annotation-canvas {
     /* display: flex; */
 }
 
+panzoom-window,
 panzoom-controls {
+    backdrop-filter: blur(15px);
     border-radius: var(--border-radius);
-    background-color: #ffffff88;
-    margin: 5px;
-    padding: 5px;
-    z-index: 10;
+    background-color: #ffffff66;
     position: absolute;
-    display: block;
-    top: 0px;
+    padding: 5px;
+    z-index: 20;
+    margin: 5px;
+    bottom: 0px;
+}
+
+panzoom-window {
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 0px;
+    display: flex;
     left: 0px;
+}
+
+panzoom-window #pan-window-svg {
+    width: 100px;
+    height: 60px;
+}
+
+panzoom-window #pan-window-svg {
+    transition: .3s;
+}
+
+panzoom-window #pan-window-svg-image {
+    stroke: var(--color-foreground);
+    stroke-width: 1px;
+    fill: var(--color-accent);
+    opacity: .6;
+}
+
+panzoom-window #pan-window-svg-client {
+    stroke: var(--color-foreground);
+    stroke-width: 1px;
+    fill: transparent;
+}
+
+panzoom-window #pan-window-svg.zoom-in #pan-window-svg-image,
+panzoom-window #pan-window-svg.zoom-out #pan-window-svg-client {
+    stroke-width: 2px;
+}
+
+panzoom-controls {
+    --panzoom-controls--width: 50px;
+
+    flex-direction: column;
+    pointer-events: none;
+    align-items: center;
+    display: flex;
+    z-index: 10;
+    width: calc(var(--panzoom-controls--width) / 2);
+    right: 0px;
+}
+
+panzoom-controls * {
+    pointer-events: all;
+}
+
+panzoom-controls button {
+    height: calc(var(--panzoom-controls--width) / 2);
+    width: calc(var(--panzoom-controls--width) / 2);
+    border: 1px solid var(--color-foreground);
+    border-radius: var(--border-radius);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    margin: 2px 0px;
+}
+
+panzoom-controls #zoom-out {
+    background-image: url('/img/icon-zoom-out.svg');
+}
+
+panzoom-controls #zoom-in {
+    background-image: url('/img/icon-zoom-in.svg');
+}
+
+panzoom-controls #zoom-reset {
+    background-image: url('/img/icon-zoom-fit.svg');
+}
+
+panzoom-controls #pan-reset {
+    background-image: url('/img/icon-pan.svg');
+}
+
+panzoom-controls #zoom-slider {
+    -webkit-appearance: slider-vertical;
+    writing-mode: bt-lr;
 }
 
 svg-holder {

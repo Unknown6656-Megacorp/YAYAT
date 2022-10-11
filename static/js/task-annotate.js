@@ -5,12 +5,15 @@ const current_frame = {
     number: 0,
     width: 0,
     height: 0,
+    minzoom: .5,
+    maxzoom: 10,
 };
 
 const pan_container = $('annotation-canvas');
+const pan_controls = $('panzoom-controls');
 const pan_canvas = $('svg-holder');
 
-
+pan_container.on('resize', on_panzoom_changed);
 pan_container.on('dblclick', reset_pos_zoom);
 
 let pz = undefined;
@@ -25,8 +28,8 @@ function update_panzoom()
     pz = panzoom(pan_canvas[0], {
         zoomSpeed: .5,
         smoothScroll: true,
-        maxZoom: 27000.0 / size,
-        minZoom: .7,
+        maxZoom: (current_frame.maxzoom = 27000.0 / size),
+        minZoom: current_frame.minzoom,
         bounds: true,
         boundsPadding: .4,
         zoomDoubleClickSpeed: 1,
@@ -34,9 +37,103 @@ function update_panzoom()
         onDoubleClick: event => {
             return false;
         },
+        beforeMouseDown: should_ignore_panzoom,
+        beforeWheel: should_ignore_panzoom,
     });
+    pz.on('pan', on_panzoom_changed);
+    pz.on('zoom', on_panzoom_changed);
 
+    on_panzoom_changed();
     reset_pos_zoom();
+}
+
+function on_panzoom_changed()
+{
+    if (current_frame.width == 0 || current_frame.height == 0)
+    {
+        $('#pan-window-svg').hide();
+
+        return;
+    }
+    else
+        $('#pan-window-svg').show();
+
+    const { x, y, scale } = pz.getTransform();
+    const scaled_frame = {
+        w: scale * current_frame.width,
+        h: scale * current_frame.height,
+    };
+    const canvas_bounds = pan_container[0].getBoundingClientRect();
+    const canvas = {
+        w: canvas_bounds.width,
+        h: canvas_bounds.height
+    };
+
+    let c_height, c_width,
+        f_height, f_width,
+        svg_height, svg_mode,
+        c_x = 0, c_y = 0,
+        f_x = 0, f_y = 0,
+
+        first_x, first_y,
+        last_x, last_y;
+    const svg_width = 120.0;
+
+    if (canvas.w > scaled_frame.w || canvas.h > scaled_frame.h)
+    {
+        const relative_scale = scaled_frame.w / canvas.w;
+
+        c_width = svg_width;
+        c_height =
+        svg_height = canvas.h / canvas.w * svg_width;
+        f_width = svg_width * relative_scale;
+        f_height = scaled_frame.h / scaled_frame.w * f_width;
+        f_x = x / canvas.w * svg_width;
+        f_y = y / canvas.h * svg_height;
+        svg_mode = 'zoom-out';
+    }
+    else
+    {
+        const relative_scale = canvas.w / scaled_frame.w;
+
+        f_width = svg_width;
+        f_height =
+        svg_height = scaled_frame.h / scaled_frame.w * svg_width;
+        c_width = svg_width * relative_scale;
+        c_height = canvas.h / canvas.w * c_width;
+        c_x = -x / scaled_frame.w * svg_width;
+        c_y = -y / scaled_frame.h * svg_height;
+        svg_mode = 'zoom-in';
+    }
+
+    $('#zoom-slider').attr({
+        min: current_frame.minzoom * 100,
+        max: current_frame.maxzoom * 100,
+    }).val(100 * scale);
+    $('#pan-window-svg').css({
+        width: `${svg_width}px`,
+        height: `${svg_height}px`,
+    }).attr('class', svg_mode);
+    $('#pan-window-svg-image').attr({
+        x: f_x,
+        y: f_y,
+        width: f_width,
+        height: f_height,
+    });
+    $('#pan-window-svg-client').attr({
+        x: c_x,
+        y: c_y,
+        width: c_width,
+        height: c_height,
+    });
+    $('#zoom-level').text(`${(100 * scale).toFixed(2)} %`);
+}
+
+function should_ignore_panzoom()
+{
+    const hovered_on = $(':hover');
+
+    return pan_controls.find(hovered_on).length > 0;
 }
 
 function reset_pos_zoom()
@@ -48,8 +145,13 @@ function reset_pos_zoom()
     const zoom = Math.min(1.0 * cnv.width / current_frame.width, 1.0 * cnv.height / current_frame.height);
 
     pz.zoomAbs(0, 0, zoom);
-    pz.moveTo(0, 0);
+    pz.moveTo(
+        (cnv.width - zoom * current_frame.width) / 2,
+        (cnv.height - zoom * current_frame.height) / 2
+    );
 }
+
+$(window).resize(on_panzoom_changed);
 
 update_panzoom();
 // pixelated
@@ -97,7 +199,7 @@ function goto_frame(frame_number)
     $('#btn-first-frame, #btn-prev-frame, #btn-play-backward').attr('disabled', frame_number < 1);
     $('#btn-last-frame, #btn-next-frame, #btn-play-forward').attr('disabled', frame_number > task.frames.length - 2);
 
-    reset_pos_zoom();
+    update_panzoom();
 
     window.history.replaceState(null, null, `#${frame_number + 1}`);
 }
