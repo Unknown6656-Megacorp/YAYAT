@@ -12,26 +12,38 @@ const pan_canvas = $('svg-holder');
 
 
 pan_container.on('dblclick', reset_pos_zoom);
-let pz = panzoom(pan_canvas[0], {
-    zoomSpeed: .5,
-    smoothScroll: true,
-    maxZoom: 15,
-    minZoom: .7,
-    bounds: true,
-    boundsPadding: .4,
-    zoomDoubleClickSpeed: 1,
-    transformOrigin: {x: 0.5, y: 0.5},
-    onDoubleClick: event => {
-        return false;
-    },
-});
 
-// if (pz)
-// pz.dispose();
+let pz = undefined;
 
+function update_panzoom()
+{
+    if (pz)
+        pz.dispose();
+
+    const size = Math.max(current_frame.width, current_frame.height);
+
+    pz = panzoom(pan_canvas[0], {
+        zoomSpeed: .5,
+        smoothScroll: true,
+        maxZoom: 27000.0 / size,
+        minZoom: .7,
+        bounds: true,
+        boundsPadding: .4,
+        zoomDoubleClickSpeed: 1,
+        transformOrigin: {x: 0.5, y: 0.5},
+        onDoubleClick: event => {
+            return false;
+        },
+    });
+
+    reset_pos_zoom();
+}
 
 function reset_pos_zoom()
 {
+    if (!pz)
+        return;
+
     const cnv = pan_container[0].getBoundingClientRect();
     const zoom = Math.min(1.0 * cnv.width / current_frame.width, 1.0 * cnv.height / current_frame.height);
 
@@ -39,7 +51,7 @@ function reset_pos_zoom()
     pz.moveTo(0, 0);
 }
 
-
+update_panzoom();
 // pixelated
 // smooth
 
