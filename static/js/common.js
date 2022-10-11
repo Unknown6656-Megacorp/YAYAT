@@ -157,7 +157,7 @@ function add_scroll_shadow(elems)
 
         function on_update()
         {
-            const bounds = elem[0].getClientRects()[0];
+            const bounds = elem[0].getBoundingClientRect();
 
             scroll_shadow.css({
                 height: `${bounds.height}px`,
