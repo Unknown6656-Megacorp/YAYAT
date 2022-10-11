@@ -415,27 +415,33 @@ tab-control tab-page.active {
     display: unset;
 }
 
-
-
-/* ///////////////////////////////////////// TODO /////////////////////////////////////////
-
-.scroll-shadows {
-    position: relative;
-    background-color: #FFF;
+scroll-shadow {
+    pointer-events: none;
+    position: fixed;
+    display: block;
+    z-index: 4000;
 }
 
-.shadow-top {
-    height: 20px;
-    position: absolute;
-    background-image: radial-gradient(farthest-side at 50% 0%, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
-    display: none;
-  }
-
-.shadow-bottom {
-    height: 20px;
-    position: absolute;
-    background-image: radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
-    display: none;
+scroll-shadow.scroll-shadow-top {
+    background: linear-gradient(
+        #00000055 0%,
+        transparent 6%
+    );
 }
 
-*/
+scroll-shadow.scroll-shadow-bottom {
+    background: linear-gradient(
+        transparent 94%,
+        #00000055 100%
+    );
+}
+
+scroll-shadow.scroll-shadow-top.scroll-shadow-bottom {
+    background: linear-gradient(
+        #00000055 0%,
+        transparent 6%
+    ), linear-gradient(
+        transparent 94%,
+        #00000055 100%
+    );
+}

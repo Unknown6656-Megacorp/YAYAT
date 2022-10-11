@@ -43,6 +43,13 @@ async function query_api(path, obj, error)
     }
 }
 
+function uuid()
+{
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+}
+
 function get_random_color()
 {
     return '#' + Math.floor(Math.random() * 0xFFFFFF << 0).toString(16);
@@ -126,13 +133,62 @@ function show_modal_notice(title, text, actions)
         });
 }
 
-function uuid()
+function add_scroll_shadow(elems)
 {
-    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-    );
+    for (let elem of elems)
+    {
+        const id = uuid();
+
+        elem = $(elem);
+        elem.attr('data-scroll-uuid', id);
+
+        const scroll_shadow = $(`
+            <scroll-shadow data-scroll-uuid="${id}">
+            </scroll-shadow>
+        `).insertAfter($('page-container'));
+
+        new ResizeObserver(on_update).observe(elem[0]);
+        addEventListener('resize', on_update);
+
+        elem.on('DOMSubtreeModified scroll', on_scroll);
+        $(window).scroll(on_update);
+
+        on_scroll();
+
+        function on_update()
+        {
+            const bounds = elem[0].getClientRects()[0];
+
+            scroll_shadow.css({
+                height: `${bounds.height}px`,
+                width: `${bounds.width}px`,
+                left: `${bounds.x}px`,
+                top: `${bounds.y}px`,
+            });
+        }
+        function on_scroll()
+        {
+            const scroll_top = elem.scrollTop();
+            const scroll_bottom = elem[0].scrollHeight - elem.height() - scroll_top;
+
+            if (scroll_top > 0)
+                scroll_shadow.addClass('scroll-shadow-top');
+            else
+                scroll_shadow.removeClass('scroll-shadow-top');
+
+            if (scroll_bottom > 0)
+                scroll_shadow.addClass('scroll-shadow-bottom');
+            else
+                scroll_shadow.removeClass('scroll-shadow-bottom');
+
+            on_update();
+        }
+    }
 }
 
+
+if (user)
+    user.date = print_absolute_utc(user.date);
 
 if ('serviceWorker' in navigator && use_service_worker)
     navigator.serviceWorker.register('/service-worker.js');
@@ -174,82 +230,4 @@ $('tab-control').each(function()
 
 
 
-
-
-///////////////////////////////////////// TODO /////////////////////////////////////////
-
-
-var scrollShadow = (function() {
-    var elem, width, height, offset,
-      shadowTop, shadowBottom,
-      timeout;
-  
-    function initShadows() {
-        shadowTop = $("<div>")
-            .addClass("shadow-top")
-            .insertAfter(elem);
-        shadowBottom = $("<div>")
-            .addClass("shadow-bottom")
-            .insertAfter(elem);
-    }
-  
-    function calcPosition() {
-        width = elem.outerWidth();
-        height = elem.outerHeight();
-        offset = elem.position();
-    
-        // update 
-        shadowTop.css({
-            width: width + "px",
-            top: offset.top + "px",
-            left: offset.left + "px"
-        });
-        shadowBottom.css({
-            width: width + "px",
-            top: (offset.top + height - 20) + "px",
-            left: offset.left + "px"
-        });
-    }
-  
-    function addScrollListener() {
-        elem.off("scroll.shadow");
-        elem.on("scroll.shadow", function() {
-            if (elem.scrollTop() > 0) {
-                shadowTop.fadeIn(125);
-            } else {
-                shadowTop.fadeOut(125);
-            }
-
-            if (elem.scrollTop() + height >= elem[0].scrollHeight) {
-                shadowBottom.fadeOut(125);
-            } else {
-                shadowBottom.fadeIn(125);
-            }
-        });
-    }
-  
-    function addResizeListener() {
-        $(window).on("resize.shadow", function() {
-            clearTimeout(timeout);
-            timeout = setTimeout(function() {
-                calcPosition();
-                elem.trigger("scroll.shadow");
-            }, 10);
-        });
-    }
-
-    return {
-        init: function(par) {
-            elem = $(par);
-            initShadows();
-            calcPosition();
-            addScrollListener();
-            addResizeListener();
-            elem.trigger("scroll.shadow");
-            calcPosition();
-        },
-        update: calcPosition
-    };
-}());
-
-scrollShadow.init(".scroll-shadows");
+add_scroll_shadow($('.scroll-shadows'));
