@@ -7,8 +7,11 @@ const current_frame = {
     height: 0,
     minzoom: .5,
     maxzoom: 10,
+    canvas: null,
+    canvas_ctx: null,
 };
 
+const zoom_slider = $('#zoom-slider');
 const pan_container = $('annotation-canvas');
 const pan_controls = $('panzoom-controls');
 const pan_canvas = $('svg-holder');
@@ -16,7 +19,10 @@ const pan_canvas = $('svg-holder');
 pan_container.on('resize', on_panzoom_changed);
 pan_container.on('dblclick', reset_pos_zoom);
 
+$(document).on('mousemove wheel', on_panzoom_mouse_moved)
+
 let pz = undefined;
+
 
 function update_panzoom()
 {
@@ -106,7 +112,7 @@ function on_panzoom_changed()
         svg_mode = 'zoom-in';
     }
 
-    $('#zoom-slider').attr({
+    zoom_slider.attr({
         min: current_frame.minzoom * 100,
         max: current_frame.maxzoom * 100,
     }).val(100 * scale);
@@ -114,7 +120,7 @@ function on_panzoom_changed()
         width: `${svg_width}px`,
         height: `${svg_height}px`,
     }).attr('class', svg_mode);
-    $('#pan-window-svg-image').attr({
+    $('#pan-window-svg-image, #pan-window-svg-overlay').attr({
         x: f_x,
         y: f_y,
         width: f_width,
@@ -127,6 +133,29 @@ function on_panzoom_changed()
         height: c_height,
     });
     $('#zoom-level').text(`${(100 * scale).toFixed(2)} %`);
+}
+
+function on_panzoom_mouse_moved(event)
+{
+    const widget = $('cursor-info-widget');
+
+    if (pan_canvas.has(event.target).length && current_frame.canvas_ctx)
+    {
+        const X = event.offsetX;
+        const Y = event.offsetY;
+        const rgba = current_frame.canvas_ctx.getImageData(X, Y, 1, 1).data;
+        const color = '#' + hex2(rgba[0]) + hex2(rgba[1]) + hex2(rgba[2]) + hex2(rgba[3]);
+
+        $('#cursor-position').html(`
+            ${X} &nbsp;|&nbsp; ${Y}<br/>
+            ${color}
+        `);
+        $('#cursor-color').css('background-color', color);
+
+        widget.removeClass('hidden');
+    }
+    else
+        widget.addClass('hidden');
 }
 
 function should_ignore_panzoom()
@@ -157,6 +186,12 @@ update_panzoom();
 // pixelated
 // smooth
 
+zoom_slider.change(function()
+{
+    if (pz)
+        pz.zoomAbs(0, 0, zoom_slider.val());
+});
+
 
 $('#btn-first-frame').click(() => goto_frame(0));
 $('#btn-prev-frame').click(() => goto_frame(current_frame.number - 1));
@@ -176,6 +211,7 @@ function goto_frame(frame_number)
     current_frame.width = frame.width;
     current_frame.height = frame.height;
 
+    const img_url = `/api/img/${task.project}/${task.id}/${frame.id}`;
     let svg = '';
 
     for (const expl_annotation in frame.explicit_annotations)
@@ -190,7 +226,7 @@ function goto_frame(frame_number)
     $('#svg-annotations').html(svg);
     $('svg-holder, #svg-root').css('width', `${frame.width}px`).css('height', `${frame.height}px`);
     $('#svg-root').attr('viewBox', `0 0 ${frame.width} ${frame.height}`);
-    $('#svg-image').attr('href', `/api/img/${task.project}/${task.id}/${frame.id}`);
+    $('#svg-image, #pan-window-svg-image').attr('href', img_url);
     $('#frame-resolution').text(`${frame.width} x ${frame.height} `);
     $('#frame-source').attr('data-source', frame.original_image_source);
     $('#frame-internal-name').text(frame.local_image_filename);
@@ -204,6 +240,14 @@ function goto_frame(frame_number)
     window.history.replaceState(null, null, `#${frame_number + 1}`);
 }
 
+document.getElementById('svg-image').onload = function()
+{
+    current_frame.canvas = document.createElement('canvas');
+    current_frame.canvas.width = current_frame.width;
+    current_frame.canvas.height = current_frame.height;
+    current_frame.canvas_ctx = current_frame.canvas.getContext('2d');
+    current_frame.canvas_ctx.drawImage(document.getElementById('svg-image'), 0, 0);
+};
 
 
 

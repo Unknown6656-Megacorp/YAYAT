@@ -26,22 +26,24 @@
         <annotation-canvas>
             <annotation-widget-container>
                 <panzoom-controls>
-                    <button id="zoom-out"></button>
-                    <input id="zoom-slider" min="0" max="100" value="30" type="range" orient="vertical"/>
                     <button id="zoom-in"></button>
+                    <input id="zoom-slider" min="0" max="100" value="30" type="range" orient="vertical"/>
+                    <button id="zoom-out"></button>
                     <button id="zoom-reset"></button>
                     <button id="pan-reset"></button>
                 </panzoom-controls>
+                <cursor-info-widget class="hidden">
+                    <span id="cursor-position" class="small"></span>
+                    <div id="cursor-color"></div>
+                </cursor-info-widget>
                 <panzoom-window>
                     <svg id="pan-window-svg">
-                        <rect id="pan-window-svg-image" x="0" y="0" width="0" height="0"/>
+                        <image id="pan-window-svg-image" x="0" y="0" width="0" height="0"/>
+                        <rect id="pan-window-svg-overlay" x="0" y="0" width="0" height="0"/>
                         <rect id="pan-window-svg-client" x="0" y="0" width="0" height="0"/>
                     </svg>
                     <span id="zoom-level" class="small">--%</span>
                 </panzoom-window>
-                <todo-->
-
-                </todo-->
             </annotation-widget-container>
             <svg-holder>
                 <svg id="svg-root">

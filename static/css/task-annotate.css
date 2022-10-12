@@ -134,11 +134,8 @@ timeline-info {
 annotation-canvas {
     background-image: var(--image-hatched-bg);
     grid-area: 3 / 1 / 5 / 2;
-    /* justify-content: center; */
-    /* align-items: center; */
     position: relative;
     overflow: hidden;
-    /* display: flex; */
 }
 
 annotation-widget-container {
@@ -162,13 +159,47 @@ annotation-widget-container > * {
     margin: 5px;
 }
 
+cursor-info-widget {
+    grid-area: 3 / 1 / 4 / 2;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    position: relative;
+    display: flex;
+
+    bottom: 0px;
+    opacity: 1;
+
+    transition: .3s;
+}
+
+cursor-info-widget.hidden {
+    bottom: -55px;
+    opacity: 0;
+}
+
+cursor-info-widget #cursor-color {
+    border: 1px solid var(--color-foreground);
+    border-radius: var(--border-radius);
+    display: block;
+    width: 35px;
+    height: 35px;
+}
+
 panzoom-window {
     grid-area: 2 / 1 / 3 / 2;
     flex-direction: column;
     align-items: center;
     padding-bottom: 0px;
+    position: relative;
     display: flex;
-    left: 0px;
+    bottom: 0px;
+
+    transition: .3s;
+}
+
+cursor-info-widget.hidden ~ panzoom-window {
+    bottom: -55px;
 }
 
 panzoom-window #pan-window-svg {
@@ -180,10 +211,12 @@ panzoom-window #pan-window-svg {
 }
 
 panzoom-window #pan-window-svg-image {
-    stroke: var(--color-foreground);
-    stroke-width: 1px;
+    opacity: .5;
+}
+
+panzoom-window #pan-window-svg-overlay {
     fill: var(--color-accent);
-    opacity: .6;
+    opacity: .35;
 }
 
 panzoom-window #pan-window-svg-client {
@@ -192,7 +225,6 @@ panzoom-window #pan-window-svg-client {
     fill: transparent;
 }
 
-panzoom-window #pan-window-svg.zoom-in #pan-window-svg-image,
 panzoom-window #pan-window-svg.zoom-out #pan-window-svg-client {
     stroke-width: 2px;
 }
@@ -245,11 +277,6 @@ panzoom-controls #zoom-slider {
     -webkit-appearance: slider-vertical;
     writing-mode: bt-lr;
 }
-
-todo-- {
-    grid-area: 3 / 1 / 4 / 2;
-}
-
 
 svg-holder {
     /* transform-origin: 50% 50% !important; */

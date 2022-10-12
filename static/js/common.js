@@ -186,6 +186,11 @@ function add_scroll_shadow(elems)
     }
 }
 
+function hex2(number)
+{
+    return ('0' + (Number(number).toString(16))).slice(-2).toUpperCase();
+}
+
 
 if (user)
     user.date = print_absolute_utc(user.date);
