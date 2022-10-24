@@ -87,12 +87,10 @@ def secure_api(route : str) -> Callable[[Callable[[dict, UserInfo], Response]], 
             if user is not None:
                 user.date = datetime.utcnow()
 
-                response = callback(
-                    user = user,
-                    args = request.get_json(silent = True) or request.args or { },
-                    **kwargs
-                )
+                if 'user' not in kwargs: kwargs['user'] = user
+                if 'args' not in kwargs: kwargs['args'] = request.get_json(silent = True) or request.args or { }
 
+                response = callback(**kwargs)
             return response
         return _inner
     return _decorated
