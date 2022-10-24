@@ -93,6 +93,15 @@ function print_absolute_utc(utc)
     return `${date.getFullYear().toString().padStart(4, '0')}-${date.getMonth().toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
 }
 
+function escape_html(unsafe)
+{
+    return unsafe.replace('&', '&amp;')
+                 .replace('<', '&lt;')
+                 .replace('>', '&gt;')
+                 .replace('"', '&quot;')
+                 .replace('\'', '&#039;');
+}
+
 function unescape_html(html)
 {
     return html.replace(/&[^;]*;/g, tag =>
@@ -189,6 +198,23 @@ function add_scroll_shadow(elems)
 function hex2(number)
 {
     return ('0' + (Number(number).toString(16))).slice(-2).toUpperCase();
+}
+
+function round_to(number, digits = 2)
+{
+    digits = 10 ** digits;
+
+    return Math.round((number + Number.EPSILON) * digits) / digits;
+}
+
+function get_cursor_relative_to_element(event, elem)
+{
+    const overlay_bounds = (elem[0] || elem).getBoundingClientRect();
+
+    return {
+        x: event.pageX - overlay_bounds.left,
+        y: event.pageY - overlay_bounds.top,
+    };
 }
 
 
