@@ -29,7 +29,7 @@
                     <button id="zoom-in"></button>
                     <input id="zoom-slider" min="0" max="100" value="30" type="range" orient="vertical"/>
                     <button id="zoom-out"></button>
-                    <button id="zoom-reset"></button>
+                    <!-- <button id="zoom-reset"></button> -->
                     <button id="pan-reset"></button>
                 </panzoom-controls>
                 <cursor-info-widget class="hidden">
@@ -45,17 +45,29 @@
                     <span id="zoom-level" class="small">--%</span>
                 </panzoom-window>
             </annotation-widget-container>
-            <svg-holder>
+            <svg-content>
                 <svg id="svg-root">
-                    <g id="svg-cursor"></g>
-                    <g id="svg-annotations"></g>
                     <image id="svg-image" image-rendering="pixelated"/>
                 </svg>
-            </svg-holder>
+            </svg-content>
+            <svg-overlay>
+                <svg id="svg-overlay">
+                    <g id="svg-annotations"></g>
+                    <rect id="svg-current-annotation" x="0" y="0" width="0" height="0"/>
+                    <g id="svg-cursor">
+                        <line id="svg-cursor-x" x1="0" y1="0" x2="0" y2="0"/>
+                        <line id="svg-cursor-y" x1="0" y1="0" x2="0" y2="0"/>
+                    </g>
+                </svg>
+            </svg-overlay>
         </annotation-canvas>
         <annotation-controls>
-            <button>new shape</button>
-            <button>new track</button>
+            <new-annotation>
+                <select id="new-annotation-type"></select>
+                <icon-button icon="new-bounding-box" id="btn-new-bounding-box"></icon-button>
+                <icon-button icon="new-tracker" id="btn-new-tracker"></icon-button>
+            </new-annotation>
+
             <button>zoom into region</button>
             <button>....</button>
         </annotation-controls>
@@ -67,6 +79,7 @@
 {% block scripts %}
     <script type="text/javascript" language="javascript">
         const task = {{task.to_jsonstr()|safe}};
+        const labels = {{project.to_jsonstr()|safe}}.labels;
     </script>
     <script type="text/javascript" language="javascript" src="/js/panzoom.js"></script>
     <script type="text/javascript" language="javascript" src="/js/task-annotate.js"></script>

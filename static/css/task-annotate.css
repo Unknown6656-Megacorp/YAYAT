@@ -67,13 +67,13 @@ icon-button[icon="play-forward"] {
     background-image: url('/img/icon-play-forward.svg');
 }
 
-/* icon-button[icon="first-frame"] {
-    background-image: url('/img/icon-.svg');
+icon-button[icon="new-bounding-box"] {
+    background-image: url('/img/icon-new-bounding-box.svg');
 }
 
-icon-button[icon="first-frame"] {
-    background-image: url('/img/icon-.svg');
-} */
+icon-button[icon="new-tracker"] {
+    background-image: url('/img/icon-new-tracker.svg');
+}
 
 icon-button[disabled] {
     opacity: .5;
@@ -136,6 +136,10 @@ annotation-canvas {
     grid-area: 3 / 1 / 5 / 2;
     position: relative;
     overflow: hidden;
+}
+
+annotation-canvas.annotating {
+    cursor: crosshair;
 }
 
 annotation-widget-container {
@@ -278,11 +282,43 @@ panzoom-controls #zoom-slider {
     writing-mode: bt-lr;
 }
 
-svg-holder {
-    /* transform-origin: 50% 50% !important; */
+svg-content,
+svg-overlay {
     display: block;
     height: 100%;
     width: 100%;
+}
+
+svg-overlay {
+    pointer-events: none;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+    top: 0px;
+}
+
+#svg-overlay {
+    height: 100%;
+    width: 100%;
+}
+
+#svg-annotations rect {
+    stroke-width: 1;
+    stroke: magenta;
+    fill: #ff00ff55
+}
+
+#svg-cursor line,
+#svg-current-annotation {
+    display: none;
+    stroke-width: 1;
+    stroke: firebrick;
+}
+
+annotation-canvas.annotating #svg-current-annotation,
+annotation-canvas.annotating #svg-cursor line {
+    display: unset;
 }
 
 annotation-controls {
