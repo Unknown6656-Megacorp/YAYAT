@@ -16,6 +16,9 @@ from __main__ import print_utc, parse_utc, PROJECTS_DIR, _DEBUG_
 from users import *
 
 
+# TODO : change APIs to use UserInfo instead of str
+
+
 PROJECTS_DIR : str
 PROJECT_FILE = 'project.json'
 DOWNLOAD_FILE = 'download.log'
@@ -340,6 +343,7 @@ class Task:
         self.download_file = osp.join(self.directory, DOWNLOAD_FILE)
         self.upload_file = osp.join(self.directory, UPLOAD_FILE)
         self.task_file = osp.join(self.directory, TASK_FILE)
+        self.next_annotation_id = 0
 
         for dir in [self.directory, self.image_directory, self.preview_directory]:
             if not osp.isdir(dir):
@@ -393,6 +397,13 @@ class Task:
             self.progress = TaskProgress(jsonobj['progress'])
             self.frames = [Frame.from_jsonobj(obj) for obj in jsonobj['frames']]
             self.tracking_annotations = [TrackingAnnotation.from_jsonobj(obj) for obj in jsonobj['tracking_annotations']]
+
+            for annotation in self.tracking_annotations:
+                self.next_annotation_id = max(self.next_annotation_id, annotation.id)
+
+            for frame in self.frames:
+                for annotation in frame.explicit_annotations:
+                    self.next_annotation_id = max(self.next_annotation_id, annotation.id)
 
     def update_json(self) -> None:
         with open(self.task_file, 'w') as f:
@@ -502,6 +513,24 @@ class Task:
 
         return None
 
+    def get_next_annotation_id(self) -> int:
+        self.next_annotation_id += 1
+        return self.next_annotation_id
+
+    def add_explicit_annotation(self, frame : Frame | int, label : Label, pose : AnnotationPose, creator : str) -> None:
+        if isinstance(frame, int):
+            frame = self.get_frame(frame)
+
+        now = datetime.utcnow()
+        id = self.get_next_annotation_id()
+        annotation = ExplicitAnnotation(id, label.id, frame.id, pose, creator, now, now)
+        frame.explicit_annotations.append(annotation)
+
+        if self.progress == TaskProgress.NOT_YET_STARTED:
+            self.progress = TaskProgress.IN_PROGRESS
+
+        self.update_modified(now)
+
 
 class Project:
     def __init__(self, id : int, name : str = None, uname : str = None):
@@ -580,6 +609,9 @@ class Project:
         self.update_json()
 
         return task
+
+    def get_label(self, id : int) -> Label:
+        return [l for l in self.labels if l.id == id][0]
 
     def get_tasks(self) -> list[Task]:
         return [self.get_task(t) for t in self.tasks]
