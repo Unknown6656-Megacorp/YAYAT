@@ -443,7 +443,53 @@ def api_projects_tasks_frames_info(args : dict, user : UserInfo, project : int, 
     pass # TODO
 
 
-@secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>/change_annotations')
+@secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>/annotations')
+def api_projects_tasks_frames_annotations(args : dict, user : UserInfo, project : int, task : int, frame : int):
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    elif (t := proj.get_task(task)) is None:
+        return json_error(f'Invalid task id "{task}" in project "{project}".')
+    elif (f := t.get_frame(frame)) is None:
+        return json_error(f'Invalid frame id "{frame}" in project "{project}", task "{task}".')
+    else:
+        annotations = f.explicit_annotations
+
+        print('TODO : interpolate implicits')
+
+        return json_ok([a.to_jsonobj() for a in annotations])
+
+
+# POST
+#   { label : int, x : float, y : float, w : float, h : float }
+@secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>/annotations/add')
+def api_projects_tasks_frames_add_annotations(args : dict, user : UserInfo, project : int, task : int, frame : int):
+    if (proj := Project.get_existing_project(project)) is None:
+        return json_error(f'Invalid project id "{project}".')
+    elif (t := proj.get_task(task)) is None:
+        return json_error(f'Invalid task id "{task}" in project "{project}".')
+    elif (f := t.get_frame(frame)) is None:
+        return json_error(f'Invalid frame id "{frame}" in project "{project}", task "{task}".')
+    else:
+        label = int(args['label'])
+        label = proj.get_label(label)
+        pose = AnnotationPose(
+            float(args['x']),
+            float(args['y']),
+            float(args['w']),
+            float(args['h'])
+        )
+        t.add_explicit_annotation(f, label, pose, user.uname)
+
+        return api_projects_tasks_frames_annotations(
+            args = args,
+            user = user,
+            project = project,
+            task = task,
+            frame = frame
+        )
+
+
+@secure_api('/api/projects/<int:project>/tasks/<int:task>/frames/<int:frame>/annotations/change')
 def api_projects_tasks_frames_change_annotations(args : dict, user : UserInfo, project : int, task : int, frame : int):
     pass # TODO
 
