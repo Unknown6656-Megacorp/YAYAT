@@ -49,7 +49,7 @@ a {
     color: unset;
 }
 
-button, input, textarea, input[type="color"] {
+button, input, textarea, input[type="color"], select {
     background-color: var(--color-element);
     border: 1px solid var(--color-accent);
     border-radius: var(--border-radius);
@@ -57,7 +57,7 @@ button, input, textarea, input[type="color"] {
     padding: 3px 6px;
 }
 
-input[readonly], textarea[readonly] {
+input[readonly], textarea[readonly], select[readonly] {
     border-color: var(--color-foreground);
     background-color: transparent;
 }
@@ -70,6 +70,7 @@ button, input[type="submit"], input[type="button"], input[type="color"] {
 }
 
 button.primary,
+select.primary,
 input[type="submit"].primary,
 input[type="button"].primary {
     background-color: var(--color-accent);
@@ -77,12 +78,14 @@ input[type="button"].primary {
 }
 
 button:hover,
+select:hover,
 input[type="submit"]:hover,
 input[type="button"]:hover {
     filter: brightness(.85);
 }
 
 button:active,
+select:active,
 input[type="submit"]:active,
 input[type="button"]:active {
     outline-offset: 0px;
@@ -90,17 +93,19 @@ input[type="button"]:active {
     filter: brightness(.7);
 }
 
+select:not([readonly]):focus,
 input:not([readonly]):focus,
 textarea:not([readonly]):focus {
     outline-color: var(--color-accent);
 }
 
+select:focus,
 input[readonly]:focus,
 textarea[readonly]:focus {
     outline-color: transparent;
 }
 
-button, input[type="submit"], input[type="button"], input[type="color"], a {
+button, input[type="submit"], input[type="button"], input[type="color"], select, a {
     cursor: pointer;
 }
 
